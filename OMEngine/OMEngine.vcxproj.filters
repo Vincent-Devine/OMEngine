@@ -30,6 +30,9 @@
     <ClInclude Include="Source\pch.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="Source\OMEngine\Core\ThreadPool.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\OMEngine\Application.cpp">
@@ -39,6 +42,9 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Source\pch.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OMEngine\Core\ThreadPool.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>

@@ -87,11 +87,13 @@
     <ClInclude Include="Source\OMEngine.hpp" />
     <ClInclude Include="Source\OMEngine\Base.hpp" />
     <ClInclude Include="Source\pch.h" />
+    <ClInclude Include="Source\OMEngine\Core\ThreadPool.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\dllmain.cpp" />
     <ClCompile Include="Source\OMEngine\Application.cpp" />
     <ClCompile Include="Source\pch.cpp" />
+    <ClCompile Include="Source\OMEngine\Core\ThreadPool.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
