@@ -1,0 +1,7 @@
+# Visual Studio
+.vs/
+*.user
+
+# OM Engine
+[Xx]64
+*.log
