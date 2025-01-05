@@ -17,9 +17,6 @@ int main()
         application.Render();
     }
 
-    application.Update(); // temp
-    application.Render(); // temp
-
     // Clean
     application.Destroy();
     return 0;

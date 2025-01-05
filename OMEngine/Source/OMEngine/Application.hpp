@@ -1,6 +1,7 @@
 #pragma once
 
 #include "OMEngine/Base.hpp"
+#include "OMEngine/Wrapper/Window.hpp"
 
 namespace OM
 {
@@ -13,6 +14,9 @@ namespace OM
 		void Destroy();
 
 		const bool WindowShouldClose() const;
+
+	private:
+		Wrapper::Window* _window;
 	};
 }
 
