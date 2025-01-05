@@ -21,9 +21,9 @@ namespace OM::Core
 					std::function<void()> task;
 					{
 						std::unique_lock<std::mutex> lock(_mutexTasks);
-						_conditionVariable.wait(lock, [this] { return _stopFlag || _tasks.empty(); });
+						_conditionVariable.wait(lock, [this] { return _stopFlag || !_tasks.empty(); });
 						if (_stopFlag && _tasks.empty())
-							return false;
+							return;
 
 						task = std::move(_tasks.front());
 						_tasks.pop();
@@ -53,5 +53,8 @@ namespace OM::Core
 			if (worker.joinable())
 				worker.join();
 		}
+
+		_workers.clear();
+		delete _instance;
 	}
 }
