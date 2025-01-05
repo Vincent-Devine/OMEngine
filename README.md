@@ -20,6 +20,7 @@ git clone git@github.com:Vincent-Devine/OMEngine.git
 
 ### Library Used
 - Logger: [OMLogger](https://github.com/Vincent-Devine/OMLogger) *v1.0*
+- Window: [GLFW](https://github.com/glfw/glfw) *v3.4*
 
 ## Credit
 Author: **Vincent DEVINE**<br>
