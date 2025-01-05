@@ -19,6 +19,7 @@ git clone git@github.com:Vincent-Devine/OMEngine.git
 - Editor: [Visual Studio 2022](https://visualstudio.microsoft.com/fr/vs/)
 
 ### Library Used
+- Logger: [OMLogger](https://github.com/Vincent-Devine/OMLogger) *v1.0*
 
 ## Credit
 Author: **Vincent DEVINE**<br>

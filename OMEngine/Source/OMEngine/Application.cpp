@@ -1,28 +1,29 @@
 #include "pch.h"
 #include "OMEngine/Application.hpp"
-#include <iostream>
+#include <OMLogger/Logger.hpp>
 
 namespace OM
 {
 	bool Application::Initialisation()
 	{
-		std::cout << "Initialisation" << std::endl;
+		Logger::OpenFile("OMEngine.log");
+
+		LOG_INFO("Initialisation complete.");
 		return true;
 	}
 
 	void Application::Update()
 	{
-		std::cout << "Update" << std::endl;
 	}
 
 	void Application::Render() const
 	{
-		std::cout << "Render" << std::endl;
 	}
 
 	void Application::Destroy()
 	{
-		std::cout << "Destroy" << std::endl;
+		LOG_INFO("Destroy complete.");
+		Logger::CloseFile();
 	}
 
 	const bool Application::WindowShouldClose() const
