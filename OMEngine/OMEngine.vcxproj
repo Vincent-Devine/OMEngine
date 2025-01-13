@@ -61,8 +61,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\_Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\_Libs;$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -81,8 +81,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\_Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\_Libs;$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -90,10 +90,13 @@
     <ClInclude Include="Source\OMEngine\Application.hpp" />
     <ClInclude Include="Source\OMEngine.hpp" />
     <ClInclude Include="Source\OMEngine\Base.hpp" />
+    <ClInclude Include="Source\OMEngine\Core\Engine.hpp" />
     <ClInclude Include="Source\OMEngine\Core\ResourceManager.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\IResource.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\Texture.hpp" />
     <ClInclude Include="Source\OMEngine\Utils.hpp" />
+    <ClInclude Include="Source\OMEngine\Wrapper\RHI.hpp" />
+    <ClInclude Include="Source\OMEngine\Wrapper\TextureLoader.hpp" />
     <ClInclude Include="Source\OMEngine\Wrapper\Window.hpp" />
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\OMEngine\Core\ThreadPool.hpp" />
@@ -101,9 +104,12 @@
   <ItemGroup>
     <ClCompile Include="Source\dllmain.cpp" />
     <ClCompile Include="Source\OMEngine\Application.cpp" />
+    <ClCompile Include="Source\OMEngine\Core\Engine.cpp" />
     <ClCompile Include="Source\OMEngine\Core\ResourceManager.cpp" />
     <ClCompile Include="Source\OMEngine\Resource\IResource.cpp" />
     <ClCompile Include="Source\OMEngine\Resource\Texture.cpp" />
+    <ClCompile Include="Source\OMEngine\Wrapper\RHI.cpp" />
+    <ClCompile Include="Source\OMEngine\Wrapper\TextureLoader.cpp" />
     <ClCompile Include="Source\OMEngine\Wrapper\Window.cpp" />
     <ClCompile Include="Source\pch.cpp" />
     <ClCompile Include="Source\OMEngine\Core\ThreadPool.cpp" />
