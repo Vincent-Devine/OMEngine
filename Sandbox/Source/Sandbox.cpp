@@ -1,10 +1,13 @@
+#include <Windows.h>
+
 #include "OMEngine.hpp"
 
-int main()
+_Use_decl_annotations_
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     // Initialisation
     OM::Application application;
-    if (!application.Initialisation())
+    if (!application.Initialisation(hInstance))
     {
         application.Destroy();
         return 1;

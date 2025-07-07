@@ -1,8 +1,7 @@
 #include "pch.h"
 
 #include "OMEngine/Wrapper/Window.hpp"
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
+#include <Windows.h>
 #include <OMLogger/Logger.hpp>
 #include "OMEngine/Utils.hpp"
 
@@ -15,37 +14,54 @@ namespace OM::Wrapper
 		return _instance;
 	}
 
-	bool Window::Initialisation()
+	bool Window::Initialisation(HINSTANCE hInstance)
 	{
-		glfwSetErrorCallback(DisplayError);
+		// Windows definition
+		WNDCLASSEX windowClass = { 0 };
+		windowClass.cbSize = sizeof(WNDCLASSEX);
+		windowClass.style = CS_HREDRAW | CS_VREDRAW;
+		windowClass.lpfnWndProc = WindowProc;
+		windowClass.hInstance = hInstance;
+		windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+		windowClass.lpszClassName = L"MainWindow";
+		RegisterClassExW(&windowClass);
 
-		if (glfwInit() == GLFW_FALSE)
-		{
-			LOG_ERROR("GLFW couldn't initalited.");
-			return false;
-		}
+		RECT windowRect = { 0, 0, static_cast<LONG>(OM::Utils::SCREEN_WIDTH), static_cast<LONG>(OM::Utils::SCREEN_HEIGHT) };
+		AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
 
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLFW_MAJOR_VERSION);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLFW_MINOR_VERSION);
+		WCHAR* windowName = {};
+		MultiByteToWideChar(CP_ACP, 0, OM::Utils::GAME_NAME, -1, windowName, 256);
 
-		_window = glfwCreateWindow(Utils::SCREEN_WIDTH, Utils::SCREEN_HEIGHT, Utils::GAME_NAME, NULL, NULL);
+		_hwnd = CreateWindow(
+			windowClass.lpszClassName,
+			windowName,
+			WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT,
+			CW_USEDEFAULT,
+			windowRect.right - windowRect.left,
+			windowRect.bottom - windowRect.top,
+			nullptr,
+			nullptr,
+			hInstance,
+			nullptr
+		);
 
-		if (!_window)
-		{
-			glfwTerminate();
-			LOG_ERROR("GLFW could'nt create window");
-			return false;
-		}
+		ShowWindow(_hwnd, SW_SHOWNORMAL);
 
-		glfwSetKeyCallback(_window, OnInput);
 		return true;
 	}
 
 	void Window::Update()
 	{
-		glfwPollEvents();
+		MSG msg = {};
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+				_windowShouldClose = true;
+
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 	}
 
 	void Window::Render() const
@@ -54,30 +70,31 @@ namespace OM::Wrapper
 
 	void Window::Destroy()
 	{
-		glfwDestroyWindow(_window);
-		glfwTerminate();
 		delete GetInstance();
 	}
 
-	const bool Window::WindowShouldClose() const
+	LRESULT CALLBACK Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
-		bool closeWindow = glfwWindowShouldClose(_window);
-		if (closeWindow)
-			LOG_INFO("Close window");
-		return closeWindow;
-	}
+		switch (message)
+		{
+		case WM_CREATE:
+			return 0;
 
-	void Window::DisplayError(int error, const char* description)
-	{
-		LOG_ERROR("GLFW [" + std::to_string(error) + "] " + description);
-	}
+		case WM_KEYDOWN:
+			return 0;
 
-	void Window::OnInput(GLFWwindow* window, int key, int scancode, int action, int mods)
-	{
-		const int CLOSE_APP_KEY = GLFW_KEY_ESCAPE;
-		const int CLOSE_APP_ACTION = GLFW_PRESS;
+		case WM_KEYUP:
+			return 0;
 
-		if (key == CLOSE_APP_KEY && action == CLOSE_APP_ACTION)
-			glfwSetWindowShouldClose(window, GLFW_TRUE);
+		case WM_PAINT:
+			return 0;
+
+		case WM_DESTROY:
+			GetInstance()->_windowShouldClose = true;
+			PostQuitMessage(0);
+			return 0;
+		}
+
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 }

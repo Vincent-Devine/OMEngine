@@ -5,7 +5,7 @@
 
 namespace OM
 {
-	bool Application::Initialisation()
+	bool Application::Initialisation(HINSTANCE hInstance)
 	{
 		Logger::OpenFile("OMEngine.log");
 
@@ -13,7 +13,7 @@ namespace OM
 		// 	return false;
 
 		_window = Wrapper::Window::GetInstance();
-		if (!_window->Initialisation())
+		if (!_window->Initialisation(hInstance))
 			return false;
 
 		LOG_INFO("Initialisation complete.");
@@ -40,6 +40,6 @@ namespace OM
 
 	const bool Application::WindowShouldClose() const
 	{
-		return _window->WindowShouldClose();
+		return _window->GetWindowShouldClose();
 	}
 }

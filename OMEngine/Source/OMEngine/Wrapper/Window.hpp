@@ -2,8 +2,6 @@
 
 #include "OMEngine/Base.hpp"
 
-class GLFWwindow;
-
 namespace OM::Wrapper
 {
 	class OM_ENGINE_API Window
@@ -11,21 +9,19 @@ namespace OM::Wrapper
 	public:
 		static Window* GetInstance();
 
-		bool Initialisation();
+		bool Initialisation(HINSTANCE hInstance);
 		void Update();
 		void Render() const;
 		void Destroy();
 
-		const bool WindowShouldClose() const;
+		const bool GetWindowShouldClose() const { return _windowShouldClose; }
 
 	private:
 		static inline Window* _instance = nullptr;
 
-		GLFWwindow* _window;
-		const unsigned int GLFW_MAJOR_VERSION = 4;
-		const unsigned int GLFW_MINOR_VERSION = 5;
+		HWND _hwnd; // Handle Window
+		bool _windowShouldClose = false;
 
-		static void DisplayError(int error, const char* description);
-		static void OnInput(GLFWwindow* window, int key, int scancode, int action, int mods);
+		static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	};
 }
