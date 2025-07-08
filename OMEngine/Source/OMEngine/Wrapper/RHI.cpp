@@ -168,16 +168,16 @@ namespace OM::Wrapper
 		return true;
 	}
 
-	bool LoadAssets()
+	bool RHI::LoadAssets()
 	{
 		return true;
 	}
 
-	void PopulateCommandList()
+	void RHI::PopulateCommandList()
 	{
 	}
 
-	void WaitForPreviousFrame()
+	void RHI::WaitForPreviousFrame()
 	{
 	}
 
@@ -193,7 +193,7 @@ namespace OM::Wrapper
 				SUCCEEDED(factory6->EnumAdapterByGpuPreference(
 					adapterIndex,
 					requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
-					IID_PPV_ARGS(&adapter)));
+					IID_PPV_ARGS(&potentialAdapter)));
 					++adapterIndex)
 			{
 				DXGI_ADAPTER_DESC1 desc;
