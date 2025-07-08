@@ -5,6 +5,7 @@
 #include "OMEngine/Core/ThreadPool.hpp"
 #include "OMEngine/Resource/Texture.hpp"
 
+/*
 // Call by Thread
 void LoadResource()
 {
@@ -94,7 +95,7 @@ namespace OM::Core
 		}
 
 		auto [it, _] = _resources.insert_or_assign(path, resource);
-		LOG_DEBUG("Add resource: " + std::string(path) + " in resource manager.");
+		OM_LOG_DEBUG("Add resource: " + std::string(path) + " in resource manager.");
 		return static_cast<Resource::IResource*>(it->second);
 	}
 
@@ -112,7 +113,8 @@ namespace OM::Core
 	{
 		resource->Unload();
 		_resources.erase(resource->GetPath());
-		LOG_DEBUG("Unload and delete resource: " + std::string(resource->GetName()));
+		OM_LOG_DEBUG("Unload and delete resource: " + std::string(resource->GetName()));
 		delete resource;
 	}
 }
+*/

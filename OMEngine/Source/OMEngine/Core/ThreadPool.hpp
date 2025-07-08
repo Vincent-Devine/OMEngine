@@ -9,6 +9,7 @@
 
 namespace OM::Core
 {
+	/*
 	class OM_ENGINE_API ThreadPool
 	{
 	public:
@@ -27,5 +28,6 @@ namespace OM::Core
 		std::condition_variable _conditionVariable;
 		std::atomic<bool> _stopFlag;
 	};
+	*/
 }
 

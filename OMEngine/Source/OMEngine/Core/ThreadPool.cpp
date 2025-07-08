@@ -4,6 +4,7 @@
 
 namespace OM::Core
 {
+	/*
 	ThreadPool* ThreadPool::GetInstance()
 	{
 		if (!_instance)
@@ -57,4 +58,5 @@ namespace OM::Core
 		_workers.clear();
 		delete _instance;
 	}
+	*/
 }

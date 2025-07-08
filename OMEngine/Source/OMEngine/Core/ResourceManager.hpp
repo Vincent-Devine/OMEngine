@@ -8,6 +8,7 @@
 
 namespace OM::Core
 {
+	/*
 	class OM_ENGINE_API ResourceManager
 	{
 	public:
@@ -30,4 +31,5 @@ namespace OM::Core
 		void AddResourceToLoad(Resource::IResource* resource);
 		void DeleteResource(Resource::IResource* resource);
 	};
+	*/
 }
