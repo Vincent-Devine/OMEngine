@@ -14,7 +14,7 @@ namespace OM::Wrapper
 		return _instance;
 	}
 
-	bool Window::Initialisation(HINSTANCE hInstance)
+	bool Window::Initialisation(HINSTANCE hInstance, int nCmdShow)
 	{
 		// Windows definition
 		WNDCLASSEX windowClass = { 0 };
@@ -46,7 +46,7 @@ namespace OM::Wrapper
 			nullptr
 		);
 
-		ShowWindow(_hwnd, SW_SHOWNORMAL);
+		ShowWindow(_hwnd, nCmdShow);
 
 		return true;
 	}

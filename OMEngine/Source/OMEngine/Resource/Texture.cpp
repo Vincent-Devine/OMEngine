@@ -20,11 +20,11 @@ namespace OM::Resource
 		// Load data from wrapper
 		if (!_data)
 		{
-			LOG_WARNING("texture[" + std::to_string(_id) + "] " + _name + " failed to load.");
+			OM_LOG_WARNING("texture[" + std::to_string(_id) + "] " + _name + " failed to load.");
 			return false;
 		}
 
-		LOG_DEBUG("finish to load texture[" + std::to_string(_id) + "] " + _name);
+		OM_LOG_DEBUG("finish to load texture[" + std::to_string(_id) + "] " + _name);
 		return true;
 	}
 

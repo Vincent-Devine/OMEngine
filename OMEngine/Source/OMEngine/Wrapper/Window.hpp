@@ -9,7 +9,7 @@ namespace OM::Wrapper
 	public:
 		static Window* GetInstance();
 
-		bool Initialisation(HINSTANCE hInstance);
+		bool Initialisation(HINSTANCE hInstance, int nCmdShow);
 		void Update();
 		void Render() const;
 		void Destroy();

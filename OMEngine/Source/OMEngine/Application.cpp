@@ -5,18 +5,16 @@
 
 namespace OM
 {
-	bool Application::Initialisation(HINSTANCE hInstance)
+	bool Application::Initialisation(HINSTANCE hInstance, int nCmdShow)
 	{
-		Logger::OpenFile("OMEngine.log");
-
-		// if (!Core::ThreadPool::GetInstance()->Initialisation(2))
-		// 	return false;
+		OM::Logger::Logger::GetInstance()->OpenLogFile("OMEngine.log");
+		OM::Logger::Logger::GetInstance()->SetDisplaySettings(OM::Logger::DisplayFileInfo | OM::Logger::DisplayVerbosity | OM::Logger::DisplayTag);
 
 		_window = Wrapper::Window::GetInstance();
-		if (!_window->Initialisation(hInstance))
+		if (!_window->Initialisation(hInstance, nCmdShow))
 			return false;
 
-		LOG_INFO("Initialisation complete.");
+		OM_LOG_INFO_TAG("Initialisation complete.", OM::Logger::TagCore);
 		return true;
 	}
 
@@ -33,9 +31,8 @@ namespace OM
 	void Application::Destroy()
 	{
 		_window->Destroy();
-		// Core::ThreadPool::GetInstance()->Destroy();
-		LOG_INFO("Destroy complete.");
-		Logger::CloseFile();
+		OM_LOG_INFO("Destroy complete.");
+		OM::Logger::Logger::GetInstance()->CloseLogFile();
 	}
 
 	const bool Application::WindowShouldClose() const

@@ -8,7 +8,7 @@ namespace OM
 	class OM_ENGINE_API Application
 	{
 	public:
-		bool Initialisation(HINSTANCE hInstance);
+		bool Initialisation(HINSTANCE hInstance, int nCmdShow);
 		void Update();
 		void Render() const;
 		void Destroy();
