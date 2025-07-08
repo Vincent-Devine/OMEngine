@@ -2,6 +2,7 @@
 
 #include "OMEngine/Base.hpp"
 #include "OMEngine/Wrapper/Window.hpp"
+#include "OMEngine/Wrapper/RHI.hpp"
 
 namespace OM
 {
@@ -17,6 +18,7 @@ namespace OM
 
 	private:
 		Wrapper::Window* _window;
+		Wrapper::RHI* _rhi;
 	};
 }
 

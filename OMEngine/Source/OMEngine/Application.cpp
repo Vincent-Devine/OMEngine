@@ -14,6 +14,10 @@ namespace OM
 		if (!_window->Initialisation(hInstance, nCmdShow))
 			return false;
 
+		_rhi = Wrapper::RHI::GetInstance();
+		if (!_rhi->Initialisation(_window->GetHWND()))
+			return false;
+
 		OM_LOG_INFO_TAG("Initialisation complete.", OM::Logger::TagCore);
 		return true;
 	}
@@ -26,12 +30,14 @@ namespace OM
 	void Application::Render() const
 	{
 		_window->Render();
+		_rhi->Render();
 	}
 
 	void Application::Destroy()
 	{
 		_window->Destroy();
-		OM_LOG_INFO("Destroy complete.");
+		_rhi->Destroy();
+		OM_LOG_INFO_TAG("Destroy complete.", OM::Logger::TagCore);
 		OM::Logger::Logger::GetInstance()->CloseLogFile();
 	}
 

@@ -30,7 +30,7 @@ namespace OM::Wrapper
 		AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
 
 		WCHAR* windowName = {};
-		MultiByteToWideChar(CP_ACP, 0, OM::Utils::GAME_NAME, -1, windowName, 256);
+		MultiByteToWideChar(CP_ACP, 0, OM::Utils::GAME_NAME.c_str(), -1, windowName, 256);
 
 		_hwnd = CreateWindow(
 			windowClass.lpszClassName,
@@ -48,7 +48,7 @@ namespace OM::Wrapper
 
 		ShowWindow(_hwnd, nCmdShow);
 
-		return true;
+		return _hwnd != nullptr;
 	}
 
 	void Window::Update()

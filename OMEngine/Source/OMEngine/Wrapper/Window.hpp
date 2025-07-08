@@ -15,6 +15,7 @@ namespace OM::Wrapper
 		void Destroy();
 
 		const bool GetWindowShouldClose() const { return _windowShouldClose; }
+		HWND GetHWND() const { return _hwnd; }
 
 	private:
 		static inline Window* _instance = nullptr;
