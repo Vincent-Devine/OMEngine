@@ -21,7 +21,7 @@ namespace OM::Wrapper
 		static RHI* GetInstance();
 
 		bool Initialisation(HWND hwnd);
-		void Render() const;
+		void Render();
 		void Destroy();
 
 	private:
@@ -60,6 +60,9 @@ namespace OM::Wrapper
 
         // Adapter info
         bool _useWarpDevice;
+
+        // Viewport dimension
+        float _aspectRatio;
 
         bool LoadPipeline(HWND hwnd);
         bool LoadAssets();
