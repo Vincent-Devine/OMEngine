@@ -2,6 +2,7 @@
 
 #include "OMEngine/Base.hpp"
 
+#include <initguid.h>
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <D3Dcompiler.h>
@@ -10,6 +11,7 @@
 #include <string>
 #include <wrl.h>
 #include <shellapi.h>
+#include <vector>
 
 using Microsoft::WRL::ComPtr;
 
@@ -27,6 +29,9 @@ namespace OM::Wrapper
 	private:
 		static inline RHI* _instance = nullptr;
         static const UINT _frameCount = 2;
+        static const UINT _texturePixelSize = 4;
+        static const UINT _textureWidth = 256;
+        static const UINT _textureHeight = 256;
 
         struct Vertex
         {
@@ -44,6 +49,7 @@ namespace OM::Wrapper
         ComPtr<ID3D12CommandQueue> _commandQueue;
         ComPtr<ID3D12RootSignature> _rootSignature;
         ComPtr<ID3D12DescriptorHeap> _rtvHeap;
+        ComPtr<ID3D12DescriptorHeap> _srvHeap;
         ComPtr<ID3D12PipelineState> _pipelineState;
         ComPtr<ID3D12GraphicsCommandList> _commandList;
         UINT _rtvDescriptorSize;
@@ -51,6 +57,7 @@ namespace OM::Wrapper
         // App resources.
         ComPtr<ID3D12Resource> _vertexBuffer;
         D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
+        ComPtr<ID3D12Resource> _texture;
 
         // Synchronization objects.
         UINT _frameIndex;
@@ -70,5 +77,6 @@ namespace OM::Wrapper
         void GetHardwareAdapter(IDXGIFactory1* factory, IDXGIAdapter1** adapter, bool requestHighPerformanceAdapter = true);
         void PopulateCommandList();
         void WaitForPreviousFrame();
+        std::vector<UINT8> GenerateTextureData();
 	};
 }
