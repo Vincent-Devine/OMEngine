@@ -8,7 +8,7 @@ namespace OM
 	bool Application::Initialisation(HINSTANCE hInstance, int nCmdShow)
 	{
 		OM::Logger::Logger::GetInstance()->OpenLogFile("OMEngine.log");
-		OM::Logger::Logger::GetInstance()->SetDisplaySettings(OM::Logger::DisplayFileInfo | OM::Logger::DisplayVerbosity | OM::Logger::DisplayTag);
+		OM::Logger::Logger::GetInstance()->SetOMProfile();
 
 		_window = Wrapper::Window::GetInstance();
 		if (!_window->Initialisation(hInstance, nCmdShow))

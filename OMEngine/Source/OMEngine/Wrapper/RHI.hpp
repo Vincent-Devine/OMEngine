@@ -2,14 +2,14 @@
 
 #include "OMEngine/Base.hpp"
 
-#include <d3d12.h>
+#include <string>
+
+// Direct3D 12
+#include <DirectX12/d3dx12/d3dx12.h>
 #include <dxgi1_6.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
-#include <DirectX12/d3dx12/d3dx12.h>
-#include <string>
 #include <wrl.h>
-#include <shellapi.h>
 
 using Microsoft::WRL::ComPtr;
 
@@ -26,7 +26,6 @@ namespace OM::Wrapper
 
 	private:
 		static inline RHI* _instance = nullptr;
-        static const UINT _frameCount = 2;
 
         struct Vertex
         {
@@ -34,41 +33,56 @@ namespace OM::Wrapper
             DirectX::XMFLOAT4 color;
         };
 
-        // Pipeline objects.
-        CD3DX12_VIEWPORT _viewport;
-        CD3DX12_RECT _scissorRect;
-        ComPtr<IDXGISwapChain3> _swapChain;
+        // Device
         ComPtr<ID3D12Device> _device;
-        ComPtr<ID3D12Resource> _renderTargets[_frameCount];
+        bool _useWarpDevice = false;
+        void GetDebugInterface(unsigned int* dxgiFactoryFlags);
+        bool CreateDevice(ComPtr<IDXGIFactory4> factory);
+        void GetHardwareAdapter(IDXGIFactory1* factory, IDXGIAdapter1** adapter, bool requestHighPerformanceAdapter = true);
+
+        // Render
+        static const unsigned int _FRAME_COUNT = 2;
+        unsigned int _frameIndex;
+        ComPtr<IDXGISwapChain3> _swapChain;
+        ComPtr<ID3D12Resource> _renderTargets[_FRAME_COUNT];
+        ComPtr<ID3D12DescriptorHeap> _rtvHeap; // rtv: Render Target View
+        unsigned int _rtvDescriptorSize;
+        bool CreateSwapChain(ComPtr<IDXGIFactory4> factory, HWND hwnd);
+        bool CreateRTV();
+
+        // Command (GPU)
         ComPtr<ID3D12CommandAllocator> _commandAllocator;
         ComPtr<ID3D12CommandQueue> _commandQueue;
-        ComPtr<ID3D12RootSignature> _rootSignature;
-        ComPtr<ID3D12DescriptorHeap> _rtvHeap;
-        ComPtr<ID3D12PipelineState> _pipelineState;
         ComPtr<ID3D12GraphicsCommandList> _commandList;
-        UINT _rtvDescriptorSize;
+        bool CreateQueue();
+        bool CreateCommandList();
+        void PopulateCommandList();
 
-        // App resources.
+        // Pipeline
+        ComPtr<ID3D12RootSignature> _rootSignature;
+        ComPtr<ID3D12PipelineState> _pipelineState;
+        bool CreateRootSignature();
+        bool CreatePipelineState();
+        
+        // Geometry
         ComPtr<ID3D12Resource> _vertexBuffer;
         D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
+        bool CreateVertexBuffer();
 
-        // Synchronization objects.
-        UINT _frameIndex;
-        HANDLE _fenceEvent;
-        ComPtr<ID3D12Fence> _fence;
-        UINT64 _fenceValue;
-
-        // Adapter info
-        bool _useWarpDevice;
-
-        // Viewport dimension
+        // Viewport
+        CD3DX12_VIEWPORT _viewport;
+        CD3DX12_RECT _scissorRect;
         float _aspectRatio;
 
+        // Synchronization
+        HANDLE _fenceEvent;
+        ComPtr<ID3D12Fence> _fence;
+        unsigned __int64 _fenceValue;
+        bool CreateFence();
+        void WaitForPreviousFrame();
+
+        // Initilisation
         bool LoadPipeline(HWND hwnd);
         bool LoadAssets();
-        
-        void GetHardwareAdapter(IDXGIFactory1* factory, IDXGIAdapter1** adapter, bool requestHighPerformanceAdapter = true);
-        void PopulateCommandList();
-        void WaitForPreviousFrame();
 	};
 }

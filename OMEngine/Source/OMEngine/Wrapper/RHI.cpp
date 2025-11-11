@@ -20,7 +20,7 @@ namespace OM::Wrapper
 		_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, Utils::SCREEN_WIDTH, Utils::SCREEN_HEIGHT);
 		_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(Utils::SCREEN_WIDTH), static_cast<LONG>(Utils::SCREEN_HEIGHT));
 		_rtvDescriptorSize = 0;
-		_aspectRatio = Utils::SCREEN_WIDTH / Utils::SCREEN_HEIGHT;
+		_aspectRatio = static_cast<float>(Utils::SCREEN_WIDTH) / static_cast<float>(Utils::SCREEN_HEIGHT);
 
 		if (!LoadPipeline(hwnd))
 		{
@@ -41,14 +41,14 @@ namespace OM::Wrapper
 	{
 		PopulateCommandList();
 
+		if (!_commandList) { OM_LOG_CRITICAL_TAG("CommandList null.", OM::Logger::TagRender); return; }
+		if (!_swapChain) { OM_LOG_CRITICAL_TAG("SwapChain null.", OM::Logger::TagRender); return; }
+
 		ID3D12CommandList* ppCommandLists[] = { _commandList.Get() };
 		_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-		if (FAILED(_swapChain->Present(1, 0)))
-		{
-			OM_LOG_CRITICAL_TAG("Present the frame", OM::Logger::TagRender);
+		if (!CHECK_HRESULT(_swapChain->Present(1, 0), "Failed to present swap chain"))
 			return;
-		}
 
 		WaitForPreviousFrame();
 	}
@@ -61,64 +61,144 @@ namespace OM::Wrapper
 
 	bool RHI::LoadPipeline(HWND hwnd)
 	{
-		UINT dxgiFactoryFlags = 0;
+		unsigned int dxgiFactoryFlags = 0;
 
-	#if defined(_DEBUG)
-		ComPtr<ID3D12Debug> debugController;
-		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-		{
-			debugController->EnableDebugLayer();
-			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
-		}
-	#endif
+#if defined(_DEBUG)
+		GetDebugInterface(&dxgiFactoryFlags);
+#endif
 
 		ComPtr<IDXGIFactory4> factory;
-		if (FAILED(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory))))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to create factory!", OM::Logger::TagRender);
-			return false;
-		}
 
+		if (!CHECK_HRESULT(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)), "Failed to create factory"))
+			return false;
+
+		if (!CreateDevice(factory))
+			return false;
+
+		if (!CreateQueue())
+			return false;
+
+		if (!CreateSwapChain(factory, hwnd))
+			return false;
+
+		_frameIndex = _swapChain->GetCurrentBackBufferIndex();
+
+		if (!CreateRTV())
+			return false;
+
+		if (!CHECK_HRESULT(factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER), "Failed to disable Alt+Enter"))
+			return false;
+
+		return true;
+	}
+
+	bool RHI::LoadAssets()
+	{
+		if (!CreateRootSignature())
+			return false;
+
+		if (!CreatePipelineState())
+			return false;
+
+		if (!CreateCommandList())
+			return false;
+
+		if (!CreateVertexBuffer())
+			return false;
+
+		if (!CreateFence())
+			return false;
+
+		WaitForPreviousFrame();
+		return true;
+	}
+
+	void RHI::GetDebugInterface(unsigned int* dxgiFactoryFlags)
+	{
+		ComPtr<ID3D12Debug> debugController;
+
+		if (CHECK_HRESULT(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)), "Failed to get D3D12 debug interface"))
+		{
+			debugController->EnableDebugLayer();
+			*dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+		}
+	}
+
+	bool RHI::CreateDevice(ComPtr<IDXGIFactory4> factory)
+	{
 		if (_useWarpDevice)
 		{
 			ComPtr<IDXGIAdapter> warpAdapter;
-			if (FAILED(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter))))
-			{
-				OM_LOG_CRITICAL_TAG("Failed to give wrap adapter!", OM::Logger::TagRender);
+			if (!CHECK_HRESULT(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)), "Failed to enumerate WRAP adapter"))
 				return false;
-			}
 
-			if (FAILED(D3D12CreateDevice(warpAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&_device))))
-			{
-				OM_LOG_CRITICAL_TAG("Failed to create device with wrap adapter!", OM::Logger::TagRender);
+			if (!CHECK_HRESULT(D3D12CreateDevice(warpAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&_device)), "Failed to create device with WRAP"))
 				return false;
-			}
 		}
 		else
 		{
 			ComPtr<IDXGIAdapter1> hardwareAdapter;
 			GetHardwareAdapter(factory.Get(), &hardwareAdapter);
-
-			if (FAILED(D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&_device))))
-			{
-				OM_LOG_CRITICAL_TAG("Failed to create device!", OM::Logger::TagRender);
+			if (!CHECK_HRESULT(D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&_device)), "Failed to create device"))
 				return false;
+		}
+
+		return true;
+	}
+
+	void RHI::GetHardwareAdapter(IDXGIFactory1* factory, IDXGIAdapter1** adapter, bool requestHighPerformanceAdapter)
+	{
+		*adapter = nullptr;
+		ComPtr<IDXGIAdapter1> potentialAdapter;
+
+		ComPtr<IDXGIFactory6> factory6;
+		if (SUCCEEDED(factory->QueryInterface(IID_PPV_ARGS(&factory6))))
+		{
+			for (unsigned int adapterIndex = 0;
+				SUCCEEDED(factory6->EnumAdapterByGpuPreference(
+					adapterIndex,
+					requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
+					IID_PPV_ARGS(&potentialAdapter)));
+					++adapterIndex)
+			{
+				DXGI_ADAPTER_DESC1 desc;
+				potentialAdapter->GetDesc1(&desc);
+
+				if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+					continue;
+
+				if (SUCCEEDED(D3D12CreateDevice(potentialAdapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+					break;
 			}
 		}
 
-		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-		if (FAILED(_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&_commandQueue))))
+		if (potentialAdapter.Get() == nullptr)
 		{
-			OM_LOG_CRITICAL_TAG("Failed to create command queue!", OM::Logger::TagRender);
-			return false;
+			for (unsigned int adapterIndex = 0; SUCCEEDED(factory->EnumAdapters1(adapterIndex, &potentialAdapter)); ++adapterIndex)
+			{
+				DXGI_ADAPTER_DESC1 desc;
+				potentialAdapter->GetDesc1(&desc);
+
+				if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+					continue;
+
+				if (SUCCEEDED(D3D12CreateDevice(potentialAdapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+					break;
+			}
 		}
 
-		// Describe and create the swap chain.
+		if (potentialAdapter.Get() == nullptr)
+		{
+			OM_LOG_ERROR_TAG("No compatible GPU found.", OM::Logger::TagRender);
+		}
+
+		*adapter = potentialAdapter.Detach();
+	}
+
+	bool RHI::CreateSwapChain(ComPtr<IDXGIFactory4> factory, HWND hwnd)
+	{
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-		swapChainDesc.BufferCount = _frameCount;
+		swapChainDesc.BufferCount = _FRAME_COUNT;
 		swapChainDesc.Width = Utils::SCREEN_WIDTH;
 		swapChainDesc.Height = Utils::SCREEN_HEIGHT;
 		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -127,102 +207,137 @@ namespace OM::Wrapper
 		swapChainDesc.SampleDesc.Count = 1;
 
 		ComPtr<IDXGISwapChain1> swapChain;
-		if (FAILED(factory->CreateSwapChainForHwnd(_commandQueue.Get(), hwnd, &swapChainDesc, nullptr, nullptr, &swapChain)))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to create swap chain (for hwnd)!", OM::Logger::TagRender);
+
+		if (!CHECK_HRESULT(factory->CreateSwapChainForHwnd(_commandQueue.Get(), hwnd, &swapChainDesc, nullptr, nullptr, &swapChain), "Failed to create swap chain"))
 			return false;
-		}
 
-		if (FAILED(factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER)))
-		{
-			OM_LOG_CRITICAL_TAG("This does not support fullscreen transitions", OM::Logger::TagRender);
+		if (!CHECK_HRESULT(swapChain.As(&_swapChain), "Failed to convert swap chain"))
 			return false;
-		}
 
-		if (FAILED(swapChain.As(&_swapChain)))
-		{
-			OM_LOG_CRITICAL_TAG("Cast failed IDXGISwapChain1 to IDXGISwapChain3", OM::Logger::TagRender);
-			return false;
-		}
+		return true;
+	}
 
-		_frameIndex = _swapChain->GetCurrentBackBufferIndex();
-
+	bool RHI::CreateRTV()
+	{
 		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-		rtvHeapDesc.NumDescriptors = _frameCount;
+		rtvHeapDesc.NumDescriptors = _FRAME_COUNT;
 		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		if (FAILED(_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&_rtvHeap))))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to create descriptor heap", OM::Logger::TagRender);
+
+		if (!CHECK_HRESULT(_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&_rtvHeap)), "Failed to create render target view heap"))
 			return false;
-		}
 
 		_rtvDescriptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+		for (unsigned int i = 0; i < _FRAME_COUNT; i++)
 		{
-			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_rtvHeap->GetCPUDescriptorHandleForHeapStart());
-
-			for (UINT n = 0; n < _frameCount; n++)
-			{
-				if (FAILED(_swapChain->GetBuffer(n, IID_PPV_ARGS(&_renderTargets[n]))))
-				{
-					OM_LOG_CRITICAL_TAG("Failed to get render target view buffer", OM::Logger::TagRender);
-					return false;
-				}
-				_device->CreateRenderTargetView(_renderTargets[n].Get(), nullptr, rtvHandle);
-				rtvHandle.Offset(1, _rtvDescriptorSize);
-			}
-		}
-
-		if (FAILED(_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator))))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to create command allocator", OM::Logger::TagRender);
-			return false;
+			if (!CHECK_HRESULT(_swapChain->GetBuffer(i, IID_PPV_ARGS(&_renderTargets[i])), "Failed to get render target buffer"))
+				return false;
+			
+			_device->CreateRenderTargetView(_renderTargets[i].Get(), nullptr, rtvHandle);
+			rtvHandle.Offset(1, _rtvDescriptorSize);
 		}
 
 		return true;
 	}
 
-	bool RHI::LoadAssets()
+	bool RHI::CreateQueue()
+	{
+		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+		if (!CHECK_HRESULT(_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&_commandQueue)), "Failed to create command queue"))
+			return false;
+
+		if (!CHECK_HRESULT(_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator)), "Failed to create command allocator"))
+			return false;
+
+		return true;
+	}
+
+	bool RHI::CreateCommandList()
+	{
+		if (!CHECK_HRESULT(_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), _pipelineState.Get(), IID_PPV_ARGS(&_commandList)), "Failed to create command list"))
+			return false;
+
+		if (!CHECK_HRESULT(_commandList->Close(), "Failed to close command list"))
+			return false;
+
+		return true;
+	}
+
+	void RHI::PopulateCommandList()
+	{
+		if (!_commandAllocator) { OM_LOG_CRITICAL_TAG("CommandAllocator null.", OM::Logger::TagRender); return; }
+		if (!_commandList) { OM_LOG_CRITICAL_TAG("CommandList null.", OM::Logger::TagRender); return; }
+		if (!_pipelineState) { OM_LOG_CRITICAL_TAG("PipelineState null.", OM::Logger::TagRender); return; }
+		if (!_rootSignature) { OM_LOG_CRITICAL_TAG("RootSignature null.", OM::Logger::TagRender); return; }
+		if (!_renderTargets) { OM_LOG_CRITICAL_TAG("RenderTargets null.", OM::Logger::TagRender); return; }
+		if (!_rtvHeap) { OM_LOG_CRITICAL_TAG("RtvHeap null.", OM::Logger::TagRender); return; }
+
+		if (!CHECK_HRESULT(_commandAllocator->Reset(), "Failed to reset command allocator"))
+			return;
+
+		if (!CHECK_HRESULT(_commandList->Reset(_commandAllocator.Get(), _pipelineState.Get()), "Failed to reset command list"))
+			return;
+
+		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
+		_commandList->RSSetViewports(1, &_viewport);
+		_commandList->RSSetScissorRects(1, &_scissorRect);
+
+		CD3DX12_RESOURCE_BARRIER barrierToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(_renderTargets[_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		_commandList->ResourceBarrier(1, &barrierToRenderTarget);
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_rtvHeap->GetCPUDescriptorHandleForHeapStart(), _frameIndex, _rtvDescriptorSize);
+		_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
+		const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
+		_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+		_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		_commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
+		_commandList->DrawInstanced(3, 1, 0, 0);
+
+		auto barrierToPresent = CD3DX12_RESOURCE_BARRIER::Transition(_renderTargets[_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		_commandList->ResourceBarrier(1, &barrierToPresent);
+
+		if (!CHECK_HRESULT(_commandList->Close(), "Failed to close command list"))
+			return;
+	}
+
+	bool RHI::CreateRootSignature()
 	{
 		CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
 		rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 		ComPtr<ID3DBlob> signature;
 		ComPtr<ID3DBlob> error;
-		if (FAILED(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error)))
-		{
-			OM_LOG_CRITICAL_TAG("Root signature serialize failed", OM::Logger::TagRender);
-			return false;
-		}
 
-		if (FAILED(_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&_rootSignature))))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to create root signature", OM::Logger::TagRender);
+		if (!CHECK_HRESULT(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error), "Root signature serialize failed"))
 			return false;
-		}
 
+		if (!CHECK_HRESULT(_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&_rootSignature)), "Failed to create root signature"))
+			return false;
+
+		return true;
+	}
+
+	bool RHI::CreatePipelineState()
+	{
 		ComPtr<ID3DBlob> vertexShader;
 		ComPtr<ID3DBlob> pixelShader;
 
-	#if defined(_DEBUG)
-		// Enable better shader debugging with the graphics debugging tools.
-		UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-	#else
-		UINT compileFlags = 0;
-	#endif
+#if defined(_DEBUG)
+		unsigned int compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#else
+		unsigned int compileFlags = 0;
+#endif
 
-		if (FAILED(D3DCompileFromFile(L"Assets/Shaders/shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr)))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to compile vertex shader", OM::Logger::TagRender);
+		if (!CHECK_HRESULT(D3DCompileFromFile(L"Assets/Shaders/shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr), "Failed to compile vertex shader"))
 			return false;
-		}
 
-		if (FAILED(D3DCompileFromFile(L"Assets/Shaders/shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr)))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to compile pixel shader", OM::Logger::TagRender);
+		if (!CHECK_HRESULT(D3DCompileFromFile(L"Assets/Shaders/shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr), "Failed to compile pixel shader"))
 			return false;
-		}
 
 		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
 		{
@@ -244,24 +359,16 @@ namespace OM::Wrapper
 		psoDesc.NumRenderTargets = 1;
 		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		psoDesc.SampleDesc.Count = 1;
-		if (FAILED(_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pipelineState))))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to create graphics pipeline", OM::Logger::TagRender);
-			return false;
-		}
 
-		if (FAILED(_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), _pipelineState.Get(), IID_PPV_ARGS(&_commandList))))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to create command list", OM::Logger::TagRender);
+		if (!CHECK_HRESULT(_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pipelineState)), "Failed to create graphics pipeline"))
 			return false;
-		}
 
-		if (FAILED(_commandList->Close()))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to close command list", OM::Logger::TagRender);
-			return false;
-		}
+		return true;
+	}
 
+	bool RHI::CreateVertexBuffer()
+	{
+		// TODO: Temp
 		Vertex triangleVertices[] =
 		{
 			{ { 0.0f, 0.25f * _aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
@@ -269,30 +376,19 @@ namespace OM::Wrapper
 			{ { -0.25f, -0.25f * _aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
 		};
 
-		const UINT vertexBufferSize = sizeof(triangleVertices);
+		const unsigned int vertexBufferSize = sizeof(triangleVertices);
 
 		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 		CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
 
-		if (FAILED(_device->CreateCommittedResource(
-			&heapProps,
-			D3D12_HEAP_FLAG_NONE,
-			&bufferDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&_vertexBuffer))))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to create committed resource", OM::Logger::TagRender);
+		if (!CHECK_HRESULT(_device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&_vertexBuffer)), "Failed to create committed resource"))
 			return false;
-		}
 
-		UINT8* pVertexDataBegin;
-		CD3DX12_RANGE readRange(0, 0);        
-		if (FAILED(_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin))))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to cast vertex data", OM::Logger::TagRender);
+		unsigned __int8* pVertexDataBegin;
+		CD3DX12_RANGE readRange(0, 0);
+
+		if (!CHECK_HRESULT(_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)), "Failed to cast vertex data"))
 			return false;
-		}
 
 		memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
 		_vertexBuffer->Unmap(0, nullptr);
@@ -301,119 +397,46 @@ namespace OM::Wrapper
 		_vertexBufferView.StrideInBytes = sizeof(Vertex);
 		_vertexBufferView.SizeInBytes = vertexBufferSize;
 
-		if (FAILED(_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence))))
-		{
-			OM_LOG_CRITICAL_TAG("Failed to create fence", OM::Logger::TagRender);
+		return true;
+	}
+
+	bool RHI::CreateFence()
+	{
+		if (!CHECK_HRESULT(_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)), "Failed to create fence"))
 			return false;
-		}
 
 		_fenceValue = 1;
 
 		_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 		if (_fenceEvent == nullptr)
 		{
-			if (FAILED(HRESULT_FROM_WIN32(GetLastError())))
-			{
-				OM_LOG_CRITICAL_TAG("Fence is nullptr", OM::Logger::TagRender);
+			if (!CHECK_HRESULT(HRESULT_FROM_WIN32(GetLastError()), "Fence is nullptr"))
 				return false;
-			}
 		}
 
-		WaitForPreviousFrame();
 		return true;
-	}
-
-	void RHI::PopulateCommandList()
-	{
-		if (FAILED(_commandAllocator->Reset()))
-			return;
-
-		if (FAILED(_commandList->Reset(_commandAllocator.Get(), _pipelineState.Get())))
-			return;
-
-		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
-		_commandList->RSSetViewports(1, &_viewport);
-		_commandList->RSSetScissorRects(1, &_scissorRect);
-
-		auto barrierToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(_renderTargets[_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		_commandList->ResourceBarrier(1, &barrierToRenderTarget);
-
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_rtvHeap->GetCPUDescriptorHandleForHeapStart(), _frameIndex, _rtvDescriptorSize);
-		_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
-
-		const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-		_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-		_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		_commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
-		_commandList->DrawInstanced(3, 1, 0, 0);
-
-		auto barrierToPresent = CD3DX12_RESOURCE_BARRIER::Transition(_renderTargets[_frameIndex].Get(),D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-		_commandList->ResourceBarrier(1, &barrierToPresent);
-
-		if (FAILED(_commandList->Close()))
-			return;
 	}
 
 	void RHI::WaitForPreviousFrame()
 	{
-		const UINT64 fence = _fenceValue;
-		if (FAILED(_commandQueue->Signal(_fence.Get(), fence)))
+		if (!_commandQueue) { OM_LOG_CRITICAL_TAG("CommandQueue null.", OM::Logger::TagRender); return; }
+		if (!_fence) { OM_LOG_CRITICAL_TAG("Fence null.", OM::Logger::TagRender); return; }
+		if (!_swapChain) { OM_LOG_CRITICAL_TAG("SwapChain null.", OM::Logger::TagRender); return; }
+
+		const unsigned __int64 fence = _fenceValue;
+		if (!CHECK_HRESULT(_commandQueue->Signal(_fence.Get(), fence), "Fence signal failed"))
 			return;
 
 		_fenceValue++;
 
 		if (_fence->GetCompletedValue() < fence)
 		{
-			if (FAILED(_fence->SetEventOnCompletion(fence, _fenceEvent)))
+			if (!CHECK_HRESULT(_fence->SetEventOnCompletion(fence, _fenceEvent), "Fence event completion failed"))
 				return;
 
 			WaitForSingleObject(_fenceEvent, INFINITE);
 		}
 
 		_frameIndex = _swapChain->GetCurrentBackBufferIndex();
-	}
-
-	void RHI::GetHardwareAdapter(IDXGIFactory1* factory, IDXGIAdapter1** adapter, bool requestHighPerformanceAdapter)
-	{
-		*adapter = nullptr;
-		ComPtr<IDXGIAdapter1> potentialAdapter;
-
-		ComPtr<IDXGIFactory6> factory6;
-		if (SUCCEEDED(factory->QueryInterface(IID_PPV_ARGS(&factory6))))
-		{
-			for (UINT adapterIndex = 0;
-				SUCCEEDED(factory6->EnumAdapterByGpuPreference(
-					adapterIndex,
-					requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
-					IID_PPV_ARGS(&potentialAdapter)));
-					++adapterIndex)
-			{
-				DXGI_ADAPTER_DESC1 desc;
-				potentialAdapter->GetDesc1(&desc);
-
-				if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-					continue;
-
-				if (SUCCEEDED(D3D12CreateDevice(potentialAdapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
-					break;
-			}
-		}
-
-		if (potentialAdapter.Get() == nullptr)
-		{
-			for (UINT adapterIndex = 0; SUCCEEDED(factory->EnumAdapters1(adapterIndex, &potentialAdapter)); ++adapterIndex)
-			{
-				DXGI_ADAPTER_DESC1 desc;
-				potentialAdapter->GetDesc1(&desc);
-
-				if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-					continue;
-
-				if (SUCCEEDED(D3D12CreateDevice(potentialAdapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
-					break;
-			}
-		}
-
-		*adapter = potentialAdapter.Detach();
 	}
 }
