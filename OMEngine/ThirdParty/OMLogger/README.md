@@ -1,7 +1,7 @@
 # OMLogger
 
 ![Header-Only](https://img.shields.io/badge/header--only-blue)
-![Version](https://img.shields.io/badge/version-2.0.1-blue)
+![Version](https://img.shields.io/badge/version-2.1.0-blue)
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-orange)
 ![Windows](https://img.shields.io/badge/platform-Windows-lightgrey)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
@@ -20,6 +20,7 @@ It supports **console and file outputs**, **verbosity filtering**, **color-coded
   - [Tags](#tags)
   - [Display Settings](#display-settings)
   - [File output](#file-output)
+  - [Custom data](#custom-data)
   - [Assertion](#assertion)
 - [Requirements](#requirements)
 - [Credit](#credit)
@@ -62,15 +63,16 @@ Use the `SetVerbosity()` method to filter log messages:
 int main()
 {
 	OM::Logger::Logger::GetInstance()->SetVerbosity(OM::Logger::VerbosityDebug | OM::Logger::VerbosityInfo);
-	OM_LOG_DEBUG("Only debug and info verbosity");   // Displayed
-	OM_LOG_INFO("Only debug and info verbosity");    // Displayed 
-	OM_LOG_WARNING("Only debug and info verbosity"); // Not displayed
-	OM_LOG_ERROR("Only debug and info verbosity");   // Not displayed
-	OM_LOG_CRITICAL("Only debug and info verbosity"); // Not displayed
+	OM_LOG_DEBUG("Only debug and info verbosity");		// Displayed
+	OM_LOG_INFO("Only debug and info verbosity");		// Displayed 
+	OM_LOG_WARNING("Only debug and info verbosity");	// Not displayed
+	OM_LOG_ERROR("Only debug and info verbosity");		// Not displayed
+	OM_LOG_CRITICAL("Only debug and info verbosity");	// Not displayed
 }
 ```
 
 ### Tags
+**Tags**: Engine, Core, Render, Input, Physics, Audio, Animation, UI, AI, Resource, Scripting, Tools, Scene<br> 
 Use the macros to log and tag your messages:
 ```cpp
 int main()
@@ -80,15 +82,16 @@ int main()
 ```
 
 ### Display Settings
+**Settings**: Date, Time, Thread, FileInfo, Verbosity, Tag <br>
 Use the `SetDisplaySettings()` method to configure what log information is shown:
 ```cpp
 int main()
 {
-	OM::Logger::Logger::GetInstance()->SetDisplaySettings(OM::Logger::DisplayDate);
+	OM::Logger::Logger::GetInstance()->SetDisplaySettings(OM::Logger::DisplayTime);
 	OM_LOG_INFO("Displays only date + message");
 
-	OM::Logger::Logger::GetInstance()->SetDisplaySettings(OM::Logger::DisplayDate | OM::Logger::DisplayFileInfo);
-	OM_LOG_INFO("Displays date + file info + message");
+	OM::Logger::Logger::GetInstance()->SetDisplaySettings(OM::Logger::DisplayDate | OM::Logger::DisplayTime | OM::Logger::DisplayFileInfo);
+	OM_LOG_INFO("Displays date + time + file info + message");
 }
 ```
 
@@ -108,6 +111,26 @@ int main()
 
 	// End of the project
 	logger->CloseLogFile();
+}
+```
+By default, writing to the file will overwrite the existing contents of the log file. You can pass an additional parameter when calling the function to keep the existing entries instead of deleting them.
+```cpp
+logger->OpenLogFile("log.txt", false);
+```
+
+### Custom Data
+To manually specify the file, function, and line, consider using helper functions. Make sure that the log entry corresponds to the function calling the helper, not the helper itself.
+```cpp
+void Helper(std::string message, const char* file, int line, const char* function)
+{
+	OM_LOG_INFO_CUSTOM_DATA(message, OM::Logger::TagNone, file, line, function);
+}
+#define CUSTOM_LOG(message) Helper(message, __FILE__, __LINE__, __func__)
+
+int main()
+{
+	// file, line and func are on the main and not on the Helper() function
+	CUSTOM_LOG("Custom log");
 }
 ```
 

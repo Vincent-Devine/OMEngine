@@ -26,7 +26,7 @@ git clone git@github.com:Vincent-Devine/OMEngine.git
 
 ### Libraries Used
 - Texture loader: [stb_image](https://github.com/nothings/stb) *v2.28*
-- Logger: [OMLogger](https://github.com/Vincent-Devine/OMLogger/tree/v2.0.1) *v2.01*
+- Logger: [OMLogger](https://github.com/Vincent-Devine/OMLogger/tree/v2.1.0) *v2.1.0*
 
 ## Credits
 Author: **Vincent DEVINE**<br>

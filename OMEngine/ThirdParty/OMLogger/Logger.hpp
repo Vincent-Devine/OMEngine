@@ -41,11 +41,12 @@ namespace OM::Logger
 	{
 		DisplayNone			= 0,
 		DisplayDate			= 1 << 0,
-		DisplayThread		= 1 << 1,
-		DisplayFileInfo		= 1 << 2,
-		DisplayVerbosity	= 1 << 3,
-		DisplayTag			= 1 << 4,
-		DisplayAll = DisplayDate | DisplayThread | DisplayFileInfo | DisplayVerbosity | DisplayTag
+		DisplayTime			= 1 << 1,
+		DisplayThread		= 1 << 2,
+		DisplayFileInfo		= 1 << 3,
+		DisplayVerbosity	= 1 << 4,
+		DisplayTag			= 1 << 5,
+		DisplayAll = DisplayDate | DisplayTime | DisplayThread | DisplayFileInfo | DisplayVerbosity | DisplayTag
 	};
 
 	enum LogTag
@@ -94,10 +95,10 @@ namespace OM::Logger
 	private:
 		static inline Logger* s_instance = nullptr;
 
-		std::mutex m_mutex;
-		std::ofstream m_logFile;
-		uint8_t m_verbosity = LogVerbosity::VerbosityAll;
-		uint8_t m_displaySettings = LogDisplaySettings::DisplayAll;
+		std::mutex _mutex;
+		std::ofstream _logFile;
+		uint8_t _verbosity = LogVerbosity::VerbosityAll;
+		uint8_t _displaySettings = LogDisplaySettings::DisplayAll;
 
 		// Methods
 	public:
@@ -115,28 +116,31 @@ namespace OM::Logger
 			s_instance = nullptr;
 		}
 
-		void OpenLogFile(const std::filesystem::path& path)
+		void OpenLogFile(const std::filesystem::path& path, bool cleanLogFile = true)
 		{
-			std::scoped_lock lock(m_mutex);
-			if (m_logFile.is_open())
-				m_logFile.close();
-			m_logFile.open(path, std::ios::out | std::ios::app);
+			std::scoped_lock lock(_mutex);
+			if (_logFile.is_open())
+				_logFile.close();
+
+			std::ios::openmode openmode = std::ios::out;
+			openmode |= cleanLogFile ? std::ios::trunc : std::ios::app;
+			_logFile.open(path, openmode);
 		}
 
 		void CloseLogFile()
 		{
-			if (m_logFile.is_open())
-				m_logFile.close();
+			if (_logFile.is_open())
+				_logFile.close();
 		}
 
 		void Log(uint8_t verbosity, const char* file, int line, const char* function, const LogTag tag, const std::string& message)
 		{
-			if (!(m_verbosity & verbosity))
+			if (!(_verbosity & verbosity))
 				return;
 
 			std::ostringstream logInfo;
 
-			if (m_displaySettings & LogDisplaySettings::DisplayDate)
+			if (_displaySettings & LogDisplaySettings::DisplayDate && _displaySettings & LogDisplaySettings::DisplayTime)
 			{
 				auto now = std::chrono::system_clock::now();
 				auto timeTNow = std::chrono::system_clock::to_time_t(now);
@@ -144,23 +148,39 @@ namespace OM::Logger
 				localtime_s(&localTime, &timeTNow);
 				logInfo << '[' << std::put_time(&localTime, "%Y-%m-%d %H:%M:%S") << "] ";
 			}
+			else if (_displaySettings & LogDisplaySettings::DisplayDate)
+			{
+				auto now = std::chrono::system_clock::now();
+				auto timeTNow = std::chrono::system_clock::to_time_t(now);
+				std::tm localTime;
+				localtime_s(&localTime, &timeTNow);
+				logInfo << '[' << std::put_time(&localTime, "%Y-%m-%d") << "] ";
+			}
+			else if (_displaySettings & LogDisplaySettings::DisplayTime)
+			{
+				auto now = std::chrono::system_clock::now();
+				auto timeTNow = std::chrono::system_clock::to_time_t(now);
+				std::tm localTime;
+				localtime_s(&localTime, &timeTNow);
+				logInfo << '[' << std::put_time(&localTime, "%H:%M:%S") << "] ";
+			}
 
-			if(m_displaySettings & LogDisplaySettings::DisplayThread)
+			if(_displaySettings & LogDisplaySettings::DisplayThread)
 				logInfo << "[Thread ID " << std::this_thread::get_id() << "] ";
 
-			if (m_displaySettings & LogDisplaySettings::DisplayFileInfo)
+			if (_displaySettings & LogDisplaySettings::DisplayFileInfo)
 			{
 				const char* filename = std::strrchr(file, '\\');
 				filename = filename ? filename + 1 : file;
 				logInfo << '[' << filename << ':' << function << '@' << line << "] ";
 			}
 
-			if(m_displaySettings & LogDisplaySettings::DisplayVerbosity)
+			if(_displaySettings & LogDisplaySettings::DisplayVerbosity)
 				logInfo << LogVerbosityToString(verbosity);
 
-			if (tag != LogTag::TagNone && m_displaySettings & LogDisplaySettings::DisplayTag)
+			if (tag != LogTag::TagNone && _displaySettings & LogDisplaySettings::DisplayTag)
 			{
-				if (m_displaySettings & LogDisplaySettings::DisplayVerbosity)
+				if (_displaySettings & LogDisplaySettings::DisplayVerbosity)
 					logInfo << ' ';
 
 				 logInfo << LogTagToString(tag);
@@ -170,24 +190,24 @@ namespace OM::Logger
 			WriteFile(logInfo.str() + ' ' + message);
 		}
 
-		void SetDisplaySettings(uint8_t displaySettings) { m_displaySettings = displaySettings; }
-		void SetVerbosity(uint8_t verbositys) { m_verbosity = verbositys; }
+		void SetDisplaySettings(uint8_t displaySettings) { _displaySettings = displaySettings; }
+		void SetVerbosity(uint8_t verbositys) { _verbosity = verbositys; }
 
 		void SetOMProfile()
 		{
-			m_displaySettings = LogDisplaySettings::DisplayDate
+			_displaySettings = LogDisplaySettings::DisplayTime
 				| LogDisplaySettings::DisplayFileInfo
 				| LogDisplaySettings::DisplayVerbosity
 				| LogDisplaySettings::DisplayTag;
 
-			m_verbosity = LogVerbosity::VerbosityAll;
+			_verbosity = LogVerbosity::VerbosityAll;
 		}
 
 	private:
 		void PrintConsole(const std::string& logInfo, const std::string& message, const uint8_t verbosity)
 		{
 			static HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
-			std::scoped_lock lock(m_mutex);
+			std::scoped_lock lock(_mutex);
 
 			WORD color = 7; // default grey
 			switch (verbosity)
@@ -218,9 +238,9 @@ namespace OM::Logger
 
 		void WriteFile(const std::string& message)
 		{
-			std::scoped_lock lock(m_mutex);
-			if (m_logFile.is_open())
-				m_logFile << message << '\n';
+			std::scoped_lock lock(_mutex);
+			if (_logFile.is_open())
+				_logFile << message << '\n';
 		}
 	};
 }
@@ -237,6 +257,12 @@ namespace OM::Logger
 #define OM_LOG_WARNING_TAG(message, tag)	OM::Logger::Logger::GetInstance()->Log(OM::Logger::VerbosityWarning,	__FILE__, __LINE__, __func__, tag, message);
 #define OM_LOG_ERROR_TAG(message, tag)		OM::Logger::Logger::GetInstance()->Log(OM::Logger::VerbosityError,		__FILE__, __LINE__, __func__, tag, message);
 #define OM_LOG_CRITICAL_TAG(message, tag)	OM::Logger::Logger::GetInstance()->Log(OM::Logger::VerbosityCritical,	__FILE__, __LINE__, __func__, tag, message);
+
+#define OM_LOG_DEBUG_CUSTOM_DATA(message, tag, file, line, func)	OM::Logger::Logger::GetInstance()->Log(OM::Logger::VerbosityDebug,		file, line, func, tag, message);
+#define OM_LOG_INFO_CUSTOM_DATA(message, tag, file, line, func)		OM::Logger::Logger::GetInstance()->Log(OM::Logger::VerbosityInfo,		file, line, func, tag, message);
+#define OM_LOG_WARNING_CUSTOM_DATA(message, tag, file, line, func)	OM::Logger::Logger::GetInstance()->Log(OM::Logger::VerbosityWarning,	file, line, func, tag, message);
+#define OM_LOG_ERROR_CUSTOM_DATA(message, tag, file, line, func)	OM::Logger::Logger::GetInstance()->Log(OM::Logger::VerbosityError,		file, line, func, tag, message);
+#define OM_LOG_CRITICAL_CUSTOM_DATA(message, tag, file, line, func)	OM::Logger::Logger::GetInstance()->Log(OM::Logger::VerbosityCritical,	file, line, func, tag, message);
 
 // Assertion
 #ifdef _DEBUG
