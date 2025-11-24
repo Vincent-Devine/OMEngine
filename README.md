@@ -29,8 +29,7 @@ git clone git@github.com:Vincent-Devine/OMEngine.git
 - Logger: [OMLogger](https://github.com/Vincent-Devine/OMLogger/tree/v2.1.0) *v2.1.0*
 
 ## Credits
-Author: **Vincent DEVINE**<br>
-Project Start Date: 01/05/2025
+Made by [Vincent DEVINE](https://github.com/Vincent-Devine)<br>
 
 ### Special Thanks
 - [DirectX-Graphics-Samples by Microsoft](https://github.com/microsoft/DirectX-Graphics-Samples/tree/master)
