@@ -2,6 +2,9 @@
 .vs/
 *.user
 
+# Raider JetBrain
+*.idea
+
 # OMEngine
 [Xx]64
 *.log
