@@ -30,8 +30,12 @@ namespace OM::Wrapper
         struct Vertex
         {
             DirectX::XMFLOAT3 position;
-            DirectX::XMFLOAT4 color;
+            DirectX::XMFLOAT2 uv;
         };
+
+        // Initilisation
+        bool LoadPipeline(HWND hwnd);
+        bool LoadAssets();
 
         // Device
         ComPtr<ID3D12Device> _device;
@@ -46,6 +50,7 @@ namespace OM::Wrapper
         ComPtr<IDXGISwapChain3> _swapChain;
         ComPtr<ID3D12Resource> _renderTargets[_FRAME_COUNT];
         ComPtr<ID3D12DescriptorHeap> _rtvHeap; // rtv: Render Target View
+        ComPtr<ID3D12DescriptorHeap> _srvHeap; // srv: Shader Resource View
         unsigned int _rtvDescriptorSize;
         bool CreateSwapChain(ComPtr<IDXGIFactory4> factory, HWND hwnd);
         bool CreateRTV();
@@ -81,8 +86,12 @@ namespace OM::Wrapper
         bool CreateFence();
         void WaitForPreviousFrame();
 
-        // Initilisation
-        bool LoadPipeline(HWND hwnd);
-        bool LoadAssets();
+        // Texture
+        static const unsigned int _TEXTURE_WIDTH = 256;
+        static const unsigned int _TEXTURE_HEIGHT = 256;
+        static const unsigned int _TEXTURE_PIXEL_SIZE = 4;
+        ComPtr<ID3D12Resource> _texture;
+        ComPtr<ID3D12Resource> _textureUploadHeap;
+        std::vector<unsigned __int8> GenerateTextureData();
 	};
 }

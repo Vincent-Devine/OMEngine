@@ -227,6 +227,13 @@ namespace OM::Wrapper
 		if (!CHECK_HRESULT(_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&_rtvHeap)), "Failed to create render target view heap"))
 			return false;
 
+		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+		srvHeapDesc.NumDescriptors = 1;
+		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		if (!CHECK_HRESULT(_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&_srvHeap)), "Failed to create shader ressource view heap"))
+			return false;
+
 		_rtvDescriptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 		for (unsigned int i = 0; i < _FRAME_COUNT; i++)
@@ -261,9 +268,6 @@ namespace OM::Wrapper
 		if (!CHECK_HRESULT(_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), _pipelineState.Get(), IID_PPV_ARGS(&_commandList)), "Failed to create command list"))
 			return false;
 
-		if (!CHECK_HRESULT(_commandList->Close(), "Failed to close command list"))
-			return false;
-
 		return true;
 	}
 
@@ -283,6 +287,9 @@ namespace OM::Wrapper
 			return;
 
 		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
+		ID3D12DescriptorHeap* ppHeaps[] = { _srvHeap.Get() };
+		_commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+		_commandList->SetGraphicsRootDescriptorTable(0, _srvHeap->GetGPUDescriptorHandleForHeapStart());
 		_commandList->RSSetViewports(1, &_viewport);
 		_commandList->RSSetScissorRects(1, &_scissorRect);
 
@@ -307,13 +314,39 @@ namespace OM::Wrapper
 
 	bool RHI::CreateRootSignature()
 	{
-		CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-		rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
+		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+		if (!CHECK_HRESULT(_device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData)), "device doesn't support 1.1 version"))
+			featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+
+		CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
+		ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+
+		CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+		rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_PIXEL);
+
+		D3D12_STATIC_SAMPLER_DESC sampler = {};
+		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler.MipLODBias = 0;
+		sampler.MaxAnisotropy = 0;
+		sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+		sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+		sampler.MinLOD = 0.0f;
+		sampler.MaxLOD = D3D12_FLOAT32_MAX;
+		sampler.ShaderRegister = 0;
+		sampler.RegisterSpace = 0;
+		sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
+		rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 1, &sampler, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 		ComPtr<ID3DBlob> signature;
 		ComPtr<ID3DBlob> error;
 
-		if (!CHECK_HRESULT(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error), "Root signature serialize failed"))
+		if (!CHECK_HRESULT(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error), "Root signature serialize failed"))
 			return false;
 
 		if (!CHECK_HRESULT(_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&_rootSignature)), "Failed to create root signature"))
@@ -342,7 +375,7 @@ namespace OM::Wrapper
 		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
@@ -371,9 +404,9 @@ namespace OM::Wrapper
 		// TODO: Temp
 		Vertex triangleVertices[] =
 		{
-			{ { 0.0f, 0.25f * _aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-			{ { 0.25f, -0.25f * _aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-			{ { -0.25f, -0.25f * _aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+			{ { 0.0f,	 0.25f * _aspectRatio, 0.0f }, { 0.5f, 0.0f } },
+			{ { 0.25f,  -0.25f * _aspectRatio, 0.0f }, { 1.0f, 1.0f } },
+			{ { -0.25f, -0.25f * _aspectRatio, 0.0f }, { 0.0f, 1.0f } }
 		};
 
 		const unsigned int vertexBufferSize = sizeof(triangleVertices);
@@ -396,6 +429,52 @@ namespace OM::Wrapper
 		_vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
 		_vertexBufferView.StrideInBytes = sizeof(Vertex);
 		_vertexBufferView.SizeInBytes = vertexBufferSize;
+
+		D3D12_RESOURCE_DESC textureDesc = {};
+		textureDesc.MipLevels = 1;
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		textureDesc.Width = _TEXTURE_WIDTH;
+		textureDesc.Height = _TEXTURE_HEIGHT;
+		textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		textureDesc.DepthOrArraySize = 1;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.SampleDesc.Quality = 0;
+		textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+
+		CD3DX12_HEAP_PROPERTIES heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		if (!CHECK_HRESULT(_device->CreateCommittedResource(&heapType, D3D12_HEAP_FLAG_NONE, &textureDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&_texture)), "Failed to create the texture"))
+			return false;
+
+		const unsigned __int64 uploadBufferSize = GetRequiredIntermediateSize(_texture.Get(), 0, 1);
+		heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+		CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+		if (!CHECK_HRESULT(_device->CreateCommittedResource(&heapType, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&_textureUploadHeap)), "Failed to create the GPU upload buffer"))
+			return false;
+
+		std::vector<unsigned __int8> texture = GenerateTextureData();
+
+		D3D12_SUBRESOURCE_DATA textureData = {};
+		textureData.pData = &texture[0];
+		textureData.RowPitch = _TEXTURE_WIDTH * _TEXTURE_PIXEL_SIZE;
+		textureData.SlicePitch = textureData.RowPitch * _TEXTURE_HEIGHT;
+
+		UpdateSubresources(_commandList.Get(), _texture.Get(), _textureUploadHeap.Get(), 0, 0, 1, &textureData);
+		CD3DX12_RESOURCE_BARRIER barrierToShaderResource = CD3DX12_RESOURCE_BARRIER::Transition(_texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		_commandList->ResourceBarrier(1, &barrierToShaderResource);
+
+		// Describe and create a SRV for the texture.
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format = textureDesc.Format;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		_device->CreateShaderResourceView(_texture.Get(), &srvDesc, _srvHeap->GetCPUDescriptorHandleForHeapStart());
+
+		if (!CHECK_HRESULT(_commandList->Close(), "Failed to close command list"))
+			return false;
+
+		ID3D12CommandList* ppCommandLists[] = { _commandList.Get() };
+		_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
 		return true;
 	}
@@ -438,5 +517,41 @@ namespace OM::Wrapper
 		}
 
 		_frameIndex = _swapChain->GetCurrentBackBufferIndex();
+	}
+
+	std::vector<unsigned __int8> RHI::GenerateTextureData()
+	{
+		const unsigned int rowPitch = _TEXTURE_WIDTH * _TEXTURE_PIXEL_SIZE;
+		const unsigned int cellPitch = rowPitch >> 3;        
+		const unsigned int cellHeight = _TEXTURE_WIDTH >> 3;    
+		const unsigned int textureSize = rowPitch * _TEXTURE_HEIGHT;
+
+		std::vector<unsigned __int8> data(textureSize);
+		unsigned __int8* pData = &data[0];
+
+		for (unsigned int n = 0; n < textureSize; n += _TEXTURE_PIXEL_SIZE)
+		{
+			unsigned int x = n % rowPitch;
+			unsigned int y = n / rowPitch;
+			unsigned int i = x / cellPitch;
+			unsigned int j = y / cellHeight;
+
+			if (i % 2 == j % 2)
+			{
+				pData[n] = 0x00;        // R
+				pData[n + 1] = 0x00;    // G
+				pData[n + 2] = 0x00;    // B
+				pData[n + 3] = 0xff;    // A
+			}
+			else
+			{
+				pData[n] = 0xff;        // R
+				pData[n + 1] = 0xff;    // G
+				pData[n + 2] = 0xff;    // B
+				pData[n + 3] = 0xff;    // A
+			}
+		}
+
+		return data;
 	}
 }
