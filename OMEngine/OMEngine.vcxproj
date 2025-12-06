@@ -94,6 +94,7 @@
     <ClInclude Include="Source\OMEngine\Base.hpp" />
     <ClInclude Include="Source\OMEngine\Core\Engine.hpp" />
     <ClInclude Include="Source\OMEngine\Core\ResourceManager.hpp" />
+    <ClInclude Include="Source\OMEngine\Core\Time.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\IResource.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\Texture.hpp" />
     <ClInclude Include="Source\OMEngine\Utils.hpp" />
@@ -108,6 +109,7 @@
     <ClCompile Include="Source\OMEngine\Application.cpp" />
     <ClCompile Include="Source\OMEngine\Core\Engine.cpp" />
     <ClCompile Include="Source\OMEngine\Core\ResourceManager.cpp" />
+    <ClCompile Include="Source\OMEngine\Core\Time.cpp" />
     <ClCompile Include="Source\OMEngine\Resource\IResource.cpp" />
     <ClCompile Include="Source\OMEngine\Resource\Texture.cpp" />
     <ClCompile Include="Source\OMEngine\Wrapper\RHI.cpp" />
