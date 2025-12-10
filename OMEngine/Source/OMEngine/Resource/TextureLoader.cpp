@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "OMEngine/Wrapper/TextureLoader.hpp"
+#include "OMEngine/Resource/TextureLoader.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>

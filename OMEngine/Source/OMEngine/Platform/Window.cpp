@@ -1,11 +1,11 @@
 #include "pch.h"
 
-#include "OMEngine/Wrapper/Window.hpp"
+#include "OMEngine/Platform/Window.hpp"
 #include <Windows.h>
 #include <OMLogger/Logger.hpp>
-#include "OMEngine/Utils.hpp"
+#include "OMEngine/Utils/Utils.hpp"
 
-namespace OM::Wrapper
+namespace OM::Platform
 {
 	Window* Window::GetInstance()
 	{

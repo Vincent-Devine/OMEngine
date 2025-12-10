@@ -95,12 +95,19 @@
     <ClInclude Include="Source\OMEngine\Core\Engine.hpp" />
     <ClInclude Include="Source\OMEngine\Core\ResourceManager.hpp" />
     <ClInclude Include="Source\OMEngine\Core\Time.hpp" />
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\RHI.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\IResource.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\Texture.hpp" />
-    <ClInclude Include="Source\OMEngine\Utils.hpp" />
-    <ClInclude Include="Source\OMEngine\Wrapper\RHI.hpp" />
-    <ClInclude Include="Source\OMEngine\Wrapper\TextureLoader.hpp" />
-    <ClInclude Include="Source\OMEngine\Wrapper\Window.hpp" />
+    <ClInclude Include="Source\OMEngine\Utils\GraphicsUtils.hpp" />
+    <ClInclude Include="Source\OMEngine\Utils\Utils.hpp" />
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\ColorBuffer.hpp" />
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\DescriptorAllocator.hpp" />
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\DescriptorHeap.hpp" />
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\GpuResource.hpp" />
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\PixelBuffer.hpp" />
+    <ClInclude Include="Source\OMEngine\Graphics\Renderer\RHI.hpp" />
+    <ClInclude Include="Source\OMEngine\Resource\TextureLoader.hpp" />
+    <ClInclude Include="Source\OMEngine\Platform\Window.hpp" />
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\OMEngine\Core\ThreadPool.hpp" />
   </ItemGroup>
@@ -110,11 +117,15 @@
     <ClCompile Include="Source\OMEngine\Core\Engine.cpp" />
     <ClCompile Include="Source\OMEngine\Core\ResourceManager.cpp" />
     <ClCompile Include="Source\OMEngine\Core\Time.cpp" />
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\RHI.cpp" />
     <ClCompile Include="Source\OMEngine\Resource\IResource.cpp" />
     <ClCompile Include="Source\OMEngine\Resource\Texture.cpp" />
-    <ClCompile Include="Source\OMEngine\Wrapper\RHI.cpp" />
-    <ClCompile Include="Source\OMEngine\Wrapper\TextureLoader.cpp" />
-    <ClCompile Include="Source\OMEngine\Wrapper\Window.cpp" />
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\ColorBuffer.cpp" />
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\DescriptorAllocator.cpp" />
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\DescriptorHeap.cpp" />
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\PixelBuffer.cpp" />
+    <ClCompile Include="Source\OMEngine\Resource\TextureLoader.cpp" />
+    <ClCompile Include="Source\OMEngine\Platform\Window.cpp" />
     <ClCompile Include="Source\pch.cpp" />
     <ClCompile Include="Source\OMEngine\Core\ThreadPool.cpp" />
   </ItemGroup>

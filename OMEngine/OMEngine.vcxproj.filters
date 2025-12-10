@@ -33,10 +33,10 @@
     <ClInclude Include="Source\OMEngine\Core\ThreadPool.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Source\OMEngine\Wrapper\Window.hpp">
+    <ClInclude Include="Source\OMEngine\Platform\Window.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Source\OMEngine\Utils.hpp">
+    <ClInclude Include="Source\OMEngine\Utils\Utils.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Source\OMEngine\Resource\IResource.hpp">
@@ -48,16 +48,37 @@
     <ClInclude Include="Source\OMEngine\Core\ResourceManager.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Source\OMEngine\Wrapper\TextureLoader.hpp">
+    <ClInclude Include="Source\OMEngine\Resource\TextureLoader.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Source\OMEngine\Core\Engine.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Source\OMEngine\Wrapper\RHI.hpp">
+    <ClInclude Include="Source\OMEngine\Graphics\Renderer\RHI.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Source\OMEngine\Core\Time.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\GpuResource.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\PixelBuffer.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\ColorBuffer.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\DescriptorHeap.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\DescriptorAllocator.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Utils\GraphicsUtils.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\RHI.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
@@ -74,7 +95,7 @@
     <ClCompile Include="Source\OMEngine\Core\ThreadPool.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OMEngine\Wrapper\Window.cpp">
+    <ClCompile Include="Source\OMEngine\Platform\Window.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Source\OMEngine\Resource\IResource.cpp">
@@ -86,16 +107,28 @@
     <ClCompile Include="Source\OMEngine\Core\ResourceManager.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OMEngine\Wrapper\TextureLoader.cpp">
+    <ClCompile Include="Source\OMEngine\Resource\TextureLoader.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Source\OMEngine\Core\Engine.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OMEngine\Wrapper\RHI.cpp">
+    <ClCompile Include="Source\OMEngine\Core\Time.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OMEngine\Core\Time.cpp">
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\ColorBuffer.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\DescriptorHeap.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\DescriptorAllocator.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\PixelBuffer.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\RHI.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>

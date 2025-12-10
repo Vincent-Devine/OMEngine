@@ -1,11 +1,10 @@
 #include "pch.h"
-
-#include "OMEngine/Wrapper/RHI.hpp"
-
+#include "OMEngine/Graphics/RHI/RHI.hpp"
 #include <OMLogger/Logger.hpp>
-#include "OMEngine/Utils.hpp"
+#include "OMEngine/Utils/GraphicsUtils.hpp"
+#include "OMEngine/Utils/Utils.hpp"
 
-namespace OM::Wrapper
+namespace OM::Graphics::RHI
 {
 	RHI* RHI::GetInstance()
 	{
@@ -14,7 +13,7 @@ namespace OM::Wrapper
 		return _instance;
 	}
 
-	bool RHI::Initialisation(HWND hwnd)
+	bool RHI::Initialize(HWND hwnd)
 	{
 		_frameIndex = 0;
 		_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, Utils::SCREEN_WIDTH, Utils::SCREEN_HEIGHT);
@@ -22,15 +21,15 @@ namespace OM::Wrapper
 		_rtvDescriptorSize = 0;
 		_aspectRatio = static_cast<float>(Utils::SCREEN_WIDTH) / static_cast<float>(Utils::SCREEN_HEIGHT);
 
-		if (!LoadPipeline(hwnd))
+		if (!InitializePipeline(hwnd))
 		{
-			OM_LOG_CRITICAL_TAG("Failed to load pipeline!", OM::Logger::TagRender);
+			OM_LOG_CRITICAL_TAG("Failed to initialize pipeline!", OM::Logger::TagRender);
 			return false;
 		}
 
-		if (!LoadAssets())
+		if (!InitializeAssets())
 		{
-			OM_LOG_CRITICAL_TAG("Failed to load assets!", OM::Logger::TagRender);
+			OM_LOG_CRITICAL_TAG("Failed to initialize assets!", OM::Logger::TagRender);
 			return false;
 		}
 
@@ -59,7 +58,7 @@ namespace OM::Wrapper
 		CloseHandle(_fenceEvent);
 	}
 
-	bool RHI::LoadPipeline(HWND hwnd)
+	bool RHI::InitializePipeline(HWND hwnd)
 	{
 		unsigned int dxgiFactoryFlags = 0;
 
@@ -68,7 +67,6 @@ namespace OM::Wrapper
 #endif
 
 		ComPtr<IDXGIFactory4> factory;
-
 		if (!CHECK_HRESULT(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)), "Failed to create factory"))
 			return false;
 
@@ -92,7 +90,7 @@ namespace OM::Wrapper
 		return true;
 	}
 
-	bool RHI::LoadAssets()
+	bool RHI::InitializeAssets()
 	{
 		if (!CreateRootSignature())
 			return false;
@@ -115,11 +113,11 @@ namespace OM::Wrapper
 
 	void RHI::GetDebugInterface(unsigned int* dxgiFactoryFlags)
 	{
-		ComPtr<ID3D12Debug> debugController;
+		ComPtr<ID3D12Debug> debugInterface;
 
-		if (CHECK_HRESULT(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)), "Failed to get D3D12 debug interface"))
+		if (CHECK_HRESULT(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface)), "Failed to get D3D12 debug interface"))
 		{
-			debugController->EnableDebugLayer();
+			debugInterface->EnableDebugLayer();
 			*dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
 	}

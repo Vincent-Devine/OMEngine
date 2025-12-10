@@ -5,17 +5,17 @@
 
 namespace OM
 {
-	bool Application::Initialisation(HINSTANCE hInstance, int nCmdShow)
+	bool Application::Initialize(HINSTANCE hInstance, int nCmdShow)
 	{
 		OM::Logger::Logger::GetInstance()->OpenLogFile("OMEngine.log");
 		OM::Logger::Logger::GetInstance()->SetOMProfile();
 
-		_window = Wrapper::Window::GetInstance();
+		_window = Platform::Window::GetInstance();
 		if (!_window->Initialisation(hInstance, nCmdShow))
 			return false;
 
-		_rhi = Wrapper::RHI::GetInstance();
-		if (!_rhi->Initialisation(_window->GetHWND()))
+		_rhi = Graphics::RHI::RHI::GetInstance();
+		if (!_rhi->Initialize(_window->GetHWND()))
 			return false;
 
 		OM_LOG_INFO_TAG("Initialisation complete.", OM::Logger::TagCore);

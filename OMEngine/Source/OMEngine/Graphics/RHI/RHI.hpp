@@ -1,10 +1,7 @@
 #pragma once
 
 #include "OMEngine/Base.hpp"
-
 #include <string>
-
-// Direct3D 12
 #include <DirectX12/d3dx12/d3dx12.h>
 #include <dxgi1_6.h>
 #include <D3Dcompiler.h>
@@ -13,16 +10,18 @@
 
 using Microsoft::WRL::ComPtr;
 
-namespace OM::Wrapper
+namespace OM::Graphics::RHI
 {
 	class OM_ENGINE_API RHI
 	{
 	public:
 		static RHI* GetInstance();
 
-		bool Initialisation(HWND hwnd);
+		bool Initialize(HWND hwnd);
 		void Render();
 		void Destroy();
+
+        ID3D12Device* GetDevice() const { return _device.Get(); }
 
 	private:
 		static inline RHI* _instance = nullptr;
@@ -34,8 +33,8 @@ namespace OM::Wrapper
         };
 
         // Initilisation
-        bool LoadPipeline(HWND hwnd);
-        bool LoadAssets();
+        bool InitializePipeline(HWND hwnd);
+        bool InitializeAssets();
 
         // Device
         ComPtr<ID3D12Device> _device;

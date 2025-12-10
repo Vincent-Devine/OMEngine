@@ -2,7 +2,7 @@
 
 #include "OMEngine/Base.hpp"
 
-namespace OM::Wrapper
+namespace OM::Platform
 {
 	class OM_ENGINE_API Window
 	{

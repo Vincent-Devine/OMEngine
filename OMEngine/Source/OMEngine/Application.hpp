@@ -1,15 +1,15 @@
 #pragma once
 
 #include "OMEngine/Base.hpp"
-#include "OMEngine/Wrapper/Window.hpp"
-#include "OMEngine/Wrapper/RHI.hpp"
+#include "OMEngine/Platform/Window.hpp"
+#include "OMEngine/Graphics/RHI/RHI.hpp"
 
 namespace OM
 {
 	class OM_ENGINE_API Application
 	{
 	public:
-		bool Initialisation(HINSTANCE hInstance, int nCmdShow);
+		bool Initialize(HINSTANCE hInstance, int nCmdShow);
 		void Update();
 		void Render() const;
 		void Destroy();
@@ -17,8 +17,8 @@ namespace OM
 		const bool WindowShouldClose() const;
 
 	private:
-		Wrapper::Window* _window;
-		Wrapper::RHI* _rhi;
+		Platform::Window* _window;
+		Graphics::RHI::RHI* _rhi;
 	};
 }
 

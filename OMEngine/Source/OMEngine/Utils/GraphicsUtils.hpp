@@ -1,15 +1,10 @@
 #pragma once
 
-#include <string>
 #include <comdef.h>
 #include <OMLogger/Logger.hpp>
 
 namespace OM::Utils
 {
-	const int SCREEN_WIDTH = 1280;
-	const int SCREEN_HEIGHT = 720;
-	const std::string GAME_NAME = "One More Engine Sandbox";
-
 	inline std::string GetErrorMsg(HRESULT result)
 	{
 		_com_error error(result);

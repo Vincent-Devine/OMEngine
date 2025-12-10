@@ -28,7 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     // Initialisation
     OM::Application application;
-    if (!application.Initialisation(hInstance, nCmdShow))
+    if (!application.Initialize(hInstance, nCmdShow))
     {
         application.Destroy();
         return 1;
