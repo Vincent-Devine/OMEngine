@@ -8,20 +8,20 @@ namespace OM::Core
 	{
 	public:
 		static void Initialisation();
-		static long long GetCurrentTick();
+		static __int64 GetCurrentTick();
 		static void BusyLoopSleep(float sleepTime);
 
-		static inline double TickToSeconds(long long tickCount)
+		static inline double TickToSeconds(__int64 tickCount)
 		{
 			return tickCount * s_cpuTickDelta;
 		}
 
-		static inline double TickToMillisecs(long long tickCount)
+		static inline double TickToMillisecs(__int64 tickCount)
 		{
 			return tickCount * s_cpuTickDelta * 1000.0;
 		}
 
-		static inline double TimeBetweenTicks(long long tick1, long long tick2)
+		static inline double TimeBetweenTicks(__int64 tick1, __int64 tick2)
 		{
 			return TickToSeconds(tick2 - tick1);
 		}
@@ -66,7 +66,7 @@ namespace OM::Core
 		}
 
 	private:
-		long long _startTick;
-		long long _elapsedTicks;
+		__int64 _startTick;
+		__int64 _elapsedTicks;
 	};
 }

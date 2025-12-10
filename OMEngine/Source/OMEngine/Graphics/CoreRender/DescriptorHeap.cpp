@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "OMEngine/Graphics/RHI/DescriptorHeap.hpp"
+#include "OMEngine/Graphics/CoreRender/DescriptorHeap.hpp"
 #include "OMEngine/Graphics/RHI/RHI.hpp"
 #include "OMEngine/Utils/GraphicsUtils.hpp"
 
 
-namespace OM::Graphics::RHI
+namespace OM::Graphics::CoreRender
 {
 	DescriptorHeap::DescriptorHeap()
 	{
@@ -25,7 +25,7 @@ namespace OM::Graphics::RHI
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		desc.NodeMask = 1;
 
-		if(!CHECK_HRESULT(RHI::GetInstance()->GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_heap)), "Failed to create descriptor heap"))
+		if(!CHECK_HRESULT(RHI::RHI::GetInstance()->GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_heap)), "Failed to create descriptor heap"))
 			return false;
 
 		_heap->SetName(debugHeapName.c_str());

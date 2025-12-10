@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "OMEngine/Graphics/RHI/PixelBuffer.hpp"
+#include "OMEngine/Graphics/CoreRender/PixelBuffer.hpp"
 #include <OMLogger/Logger.hpp>
 #include "OMEngine/Graphics/RHI/RHI.hpp"
 #include "OMEngine/Utils/GraphicsUtils.hpp"
 
-namespace OM::Graphics::RHI
+namespace OM::Graphics::CoreRender
 {
 	PixelBuffer::PixelBuffer()
 		: _width(0)
@@ -63,7 +63,7 @@ namespace OM::Graphics::RHI
         Destroy();
 
         D3D12_HEAP_PROPERTIES heap(D3D12_HEAP_TYPE_DEFAULT);
-        if (!CHECK_HRESULT(RHI::GetInstance()->GetDevice()->CreateCommittedResource(&heap, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, &clearValue, IID_PPV_ARGS(&_resource)), "failed to create device!"))
+        if (!CHECK_HRESULT(RHI::RHI::GetInstance()->GetDevice()->CreateCommittedResource(&heap, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, &clearValue, IID_PPV_ARGS(&_resource)), "failed to create device!"))
             return;
 
         _usageState = D3D12_RESOURCE_STATE_COMMON;

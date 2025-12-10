@@ -13,16 +13,16 @@ namespace OM::Core
 		s_cpuTickDelta = 1.0 / static_cast<double>(frequency.QuadPart);
 	}
 
-	long long SystemTime::GetCurrentTick()
+	__int64 SystemTime::GetCurrentTick()
 	{
 		LARGE_INTEGER currentTick;
 		OM_ASSERTION(QueryPerformanceCounter(&currentTick) == TRUE, "Unable to query performance counter value");
-		return static_cast<long long>(currentTick.QuadPart);
+		return static_cast<__int64>(currentTick.QuadPart);
 	}
 
 	void SystemTime::BusyLoopSleep(float sleepTime)
 	{
-		long long finalTick = static_cast<long long>(static_cast<double>(sleepTime) / s_cpuTickDelta) + GetCurrentTick();
+		__int64 finalTick = static_cast<__int64>(static_cast<double>(sleepTime) / s_cpuTickDelta) + GetCurrentTick();
 		while (GetCurrentTick() < finalTick);
 	}
 }

@@ -60,25 +60,34 @@
     <ClInclude Include="Source\OMEngine\Core\Time.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Source\OMEngine\Graphics\RHI\GpuResource.hpp">
+    <ClInclude Include="Source\OMEngine\Graphics\CoreRender\GpuResource.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Source\OMEngine\Graphics\RHI\PixelBuffer.hpp">
+    <ClInclude Include="Source\OMEngine\Graphics\CoreRender\PixelBuffer.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Source\OMEngine\Graphics\RHI\ColorBuffer.hpp">
+    <ClInclude Include="Source\OMEngine\Graphics\CoreRender\ColorBuffer.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Source\OMEngine\Graphics\RHI\DescriptorHeap.hpp">
+    <ClInclude Include="Source\OMEngine\Graphics\CoreRender\DescriptorHeap.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Source\OMEngine\Graphics\RHI\DescriptorAllocator.hpp">
+    <ClInclude Include="Source\OMEngine\Graphics\CoreRender\DescriptorAllocator.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Source\OMEngine\Utils\GraphicsUtils.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Source\OMEngine\Graphics\RHI\RHI.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandAllocatorPool.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandQueue.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandListManager.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
@@ -116,19 +125,28 @@
     <ClCompile Include="Source\OMEngine\Core\Time.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OMEngine\Graphics\RHI\ColorBuffer.cpp">
+    <ClCompile Include="Source\OMEngine\Graphics\CoreRender\ColorBuffer.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OMEngine\Graphics\RHI\DescriptorHeap.cpp">
+    <ClCompile Include="Source\OMEngine\Graphics\CoreRender\DescriptorHeap.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OMEngine\Graphics\RHI\DescriptorAllocator.cpp">
+    <ClCompile Include="Source\OMEngine\Graphics\CoreRender\DescriptorAllocator.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OMEngine\Graphics\RHI\PixelBuffer.cpp">
+    <ClCompile Include="Source\OMEngine\Graphics\CoreRender\PixelBuffer.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Source\OMEngine\Graphics\RHI\RHI.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\CommandAllocatorPool.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\CommandQueue.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\CommandListManager.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>

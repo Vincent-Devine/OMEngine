@@ -7,7 +7,7 @@
 
 using Microsoft::WRL::ComPtr;
 
-namespace OM::Graphics::RHI
+namespace OM::Graphics::CoreRender
 {
 	class DescriptorHeap
 	{

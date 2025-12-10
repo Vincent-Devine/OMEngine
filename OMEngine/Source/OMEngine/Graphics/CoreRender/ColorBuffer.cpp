@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "OMEngine/Graphics/RHI/ColorBuffer.hpp"
+#include "OMEngine/Graphics/CoreRender/ColorBuffer.hpp"
 
-namespace OM::Graphics::RHI
+namespace OM::Graphics::CoreRender
 {
 	void ColorBuffer::CreateFromSwapChain(const std::wstring& name, ID3D12Resource* baseResource)
 	{

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "OMEngine/Base.hpp"
-#include "OMEngine/Graphics/RHI/GpuResource.hpp"
+#include "OMEngine/Graphics/CoreRender/GpuResource.hpp"
 #include <string>
 
-namespace OM::Graphics::RHI
+namespace OM::Graphics::CoreRender
 {
 	class PixelBuffer : public GpuResource
 	{

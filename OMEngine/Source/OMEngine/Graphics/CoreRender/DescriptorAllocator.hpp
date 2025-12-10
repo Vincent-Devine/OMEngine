@@ -1,11 +1,11 @@
 #pragma once 
 
 #include "OMEngine/Base.hpp"
-#include "OMEngine/Graphics/RHI/DescriptorHeap.hpp"
+#include "OMEngine/Graphics/CoreRender/DescriptorHeap.hpp"
 #include <vector>
 #include <mutex>
 
-namespace OM::Graphics::RHI
+namespace OM::Graphics::CoreRender
 {
 
 	class OM_ENGINE_API DescriptorAllocator

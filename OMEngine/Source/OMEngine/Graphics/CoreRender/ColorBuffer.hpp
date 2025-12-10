@@ -1,10 +1,10 @@
 #pragma once
 
 #include "OMEngine/Base.hpp"
-#include "OMEngine/Graphics/RHI/PixelBuffer.hpp"
+#include "OMEngine/Graphics/CoreRender/PixelBuffer.hpp"
 #include <string>
 
-namespace OM::Graphics::RHI
+namespace OM::Graphics::CoreRender
 {
 	class ColorBuffer : public PixelBuffer
 	{

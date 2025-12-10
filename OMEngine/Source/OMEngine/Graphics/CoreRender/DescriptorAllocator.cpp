@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "OMEngine/Graphics/RHI/DescriptorAllocator.hpp"
+#include "OMEngine/Graphics/CoreRender/DescriptorAllocator.hpp"
 #include "OMEngine/Graphics/RHI/RHI.hpp"
 
-namespace OM::Graphics::RHI
+namespace OM::Graphics::CoreRender
 {
 	std::vector<DescriptorHeap*> DescriptorAllocator::s_heapPool;
 	std::mutex DescriptorAllocator::s_allocationMutex;
@@ -37,6 +37,6 @@ namespace OM::Graphics::RHI
 		_currentHandle = _currentHeap->GetCpuStart();
 		_remainingFreeHandles = S_NUM_DESCRIPTOR_PER_HEAP;
 
-		_descriptorSize = RHI::GetInstance()->GetDevice()->GetDescriptorHandleIncrementSize(_type);
+		_descriptorSize = RHI::RHI::GetInstance()->GetDevice()->GetDescriptorHandleIncrementSize(_type);
 	}
 }

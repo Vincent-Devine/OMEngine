@@ -7,12 +7,11 @@
 
 using Microsoft::WRL::ComPtr;
 
-namespace OM::Graphics::RHI
+namespace OM::Graphics::CoreRender
 {
 	class OM_ENGINE_API GpuResource
 	{
 		friend class CommandContext;
-		friend class GraphicsContext;
 
 	public:
 		GpuResource()
