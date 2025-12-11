@@ -99,6 +99,7 @@
     <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandListManager.hpp" />
     <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandQueue.hpp" />
     <ClInclude Include="Source\OMEngine\Graphics\RHI\RHI.hpp" />
+    <ClInclude Include="Source\OMEngine\Math\Scalar.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\IResource.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\Texture.hpp" />
     <ClInclude Include="Source\OMEngine\Utils\GraphicsUtils.hpp" />

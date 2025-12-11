@@ -90,6 +90,9 @@
     <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandListManager.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="Source\OMEngine\Math\Scalar.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\OMEngine\Application.cpp">
