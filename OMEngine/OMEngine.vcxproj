@@ -108,7 +108,6 @@
     <ClInclude Include="Source\OMEngine\Graphics\CoreRender\DescriptorHeap.hpp" />
     <ClInclude Include="Source\OMEngine\Graphics\CoreRender\GpuResource.hpp" />
     <ClInclude Include="Source\OMEngine\Graphics\CoreRender\PixelBuffer.hpp" />
-    <ClInclude Include="Source\OMEngine\Graphics\Renderer\RHI.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\TextureLoader.hpp" />
     <ClInclude Include="Source\OMEngine\Platform\Window.hpp" />
     <ClInclude Include="Source\pch.h" />
