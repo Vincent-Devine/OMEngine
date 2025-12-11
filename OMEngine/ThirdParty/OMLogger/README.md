@@ -146,6 +146,7 @@ int main()
 	OM_ASSERTION(1 + 1 == 3, "your text here"); // Fails
 }
 ```
+Assertions support **tags** `OM_ASSERTION_TAG` and **custom data** `OM_ASSERTION_CUSTOM_DATA`, allowing you to categorize failures and specify the file, line, and function manually when needed.
 
 ## Requirements
 - **C++20**

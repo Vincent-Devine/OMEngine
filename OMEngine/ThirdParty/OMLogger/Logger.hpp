@@ -266,7 +266,11 @@ namespace OM::Logger
 
 // Assertion
 #ifdef _DEBUG
-#define OM_ASSERTION(expression, message) if(!(expression)) { OM_LOG_CRITICAL(message); __debugbreak(); }
+#define OM_ASSERTION(expression, message) if(!(expression))	{ OM_LOG_CRITICAL(message); __debugbreak(); }
+#define OM_ASSERTION_TAG(expression, message, tag) if(!(expression)) { OM_LOG_CRITICAL_TAG(message, tag); __debugbreak(); }
+#define OM_ASSERTION_CUSTOM_DATA(expression, message, tag, file, line, func) if(!(expression)) { OM::Logger::Logger::GetInstance()->Log(OM::Logger::VerbosityCritical,	file, line, func, tag, message); __debugbreak(); }
 #else
 #define OM_ASSERTION(expression, message) if(!(expression)) { OM_LOG_CRITICAL(message); abort(); }
+#define OM_ASSERTION_TAG(expression, message, tag) if(!(expression)) { OM_LOG_CRITICAL_TAG(message, tag); abort(); }
+#define OM_ASSERTION_CUSTOM_DATA(expression, message, tag, file, line, func) if(!(expression)) { OM::Logger::Logger::GetInstance()->Log(OM::Logger::VerbosityCritical,	file, line, func, tag, message); abort(); }
 #endif

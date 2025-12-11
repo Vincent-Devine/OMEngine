@@ -39,11 +39,7 @@ namespace OM::Graphics::CoreRender
 
 	void PixelBuffer::AssociateWithResource(const std::wstring& name, ID3D12Resource* resource, D3D12_RESOURCE_STATES currentState)
 	{
-		if (resource != nullptr)
-		{
-			OM_LOG_CRITICAL_TAG("resource to associate is null", OM::Logger::TagRender);
-			return;
-		}
+        OM_ASSERTION_TAG(resource, "resource to associate is null", Logger::LogTag::TagRender);
 
 		D3D12_RESOURCE_DESC resourceDesc = resource->GetDesc();
 		_resource.Attach(resource);
@@ -63,8 +59,7 @@ namespace OM::Graphics::CoreRender
         Destroy();
 
         D3D12_HEAP_PROPERTIES heap(D3D12_HEAP_TYPE_DEFAULT);
-        if (!CHECK_HRESULT(RHI::RHI::GetInstance()->GetDevice()->CreateCommittedResource(&heap, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, &clearValue, IID_PPV_ARGS(&_resource)), "failed to create device!"))
-            return;
+        OM_ASSERTION_HRESULT(RHI::RHI::GetInstance()->GetDevice()->CreateCommittedResource(&heap, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, &clearValue, IID_PPV_ARGS(&_resource)), "failed to create device!");
 
         _usageState = D3D12_RESOURCE_STATE_COMMON;
         _gpuVirtualAddress = static_cast<D3D12_GPU_VIRTUAL_ADDRESS>(0);

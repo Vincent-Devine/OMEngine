@@ -21,22 +21,23 @@ namespace OM::Graphics::RHI
 
 	void CommandQueue::Create(ID3D12Device* device)
 	{
-		if (!device) { OM_LOG_CRITICAL_TAG("device null.", OM::Logger::TagRender); return; }
-		if (IsReady()) { OM_LOG_WARNING_TAG("command queue already create.", OM::Logger::TagRender); return; }
+		OM_ASSERTION_TAG(device, "device null.", OM::Logger::TagRender);
+		OM_ASSERTION_TAG(!IsReady(), "command queue already create.", OM::Logger::TagRender);
 
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 		queueDesc.Type = _type;
 		queueDesc.NodeMask = 1;
-		if (!CHECK_HRESULT(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&_commandQueue)), "Failed to create command queue")) return;
+
+		OM_ASSERTION_HRESULT(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&_commandQueue)), "Failed to create command queue");
 		_commandQueue->SetName(L"CommandQueue");
 
-		if (!CHECK_HRESULT(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)), "Failed to create fence")) return;
+		OM_ASSERTION_HRESULT(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)), "Failed to create fence");
 		_fence->SetName(L"Fence");
 		_fence->Signal(static_cast<unsigned __int64>(_type) << 56);
 
 		_fenceEventHandle = CreateEvent(nullptr, false, false, nullptr);
 		if (_fenceEventHandle == nullptr)
-			if (!CHECK_HRESULT(HRESULT_FROM_WIN32(GetLastError()), "Fence is nullptr")) return;
+			OM_ASSERTION_HRESULT(HRESULT_FROM_WIN32(GetLastError()), "Fence is nullptr");
 
 		_allocatorPool.Create(device);
 	}
@@ -84,7 +85,7 @@ namespace OM::Graphics::RHI
 	{
 		std::lock_guard<std::mutex> lockGuard(_fenceMutex);
 
-		if (!CHECK_HRESULT(static_cast<ID3D12GraphicsCommandList*>(list)->Close(), "failed to close list")) return 0;
+		OM_ASSERTION_HRESULT(static_cast<ID3D12GraphicsCommandList*>(list)->Close(), "failed to close list");
 		_commandQueue->ExecuteCommandLists(1, &list);
 		_commandQueue->Signal(_fence.Get(), _nextFenceValue);
 		return _nextFenceValue++;

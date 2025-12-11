@@ -42,7 +42,7 @@ namespace OM::Graphics::RHI
 		case D3D12_COMMAND_LIST_TYPE_COPY: *allocator = _copyQueue.RequestAllocator(); break;
 		}
 
-		if (!CHECK_HRESULT(_device->CreateCommandList(1, type, *allocator, nullptr, IID_PPV_ARGS(list)), "Failed to create command list")) return;
+		OM_ASSERTION_HRESULT(_device->CreateCommandList(1, type, *allocator, nullptr, IID_PPV_ARGS(list)), "Failed to create command list");
 		(*list)->SetName(L"CommandList");
 	}
 }

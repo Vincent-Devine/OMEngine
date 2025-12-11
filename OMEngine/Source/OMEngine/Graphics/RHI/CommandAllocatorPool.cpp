@@ -37,16 +37,14 @@ namespace OM::Graphics::RHI
 			if (allocatorPair.first <= completeFenceValue)
 			{
 				allocator = allocatorPair.second;
-				if (!CHECK_HRESULT(allocator->Reset(), "Failed to reset command allocator"))
-					return nullptr;
+				OM_ASSERTION_HRESULT(allocator->Reset(), "Failed to reset command allocator");
 				_readyAllocator.pop();
 			}
 		}
 
 		if (!allocator)
 		{
-			if (!CHECK_HRESULT(_device->CreateCommandAllocator(_commandListType, IID_PPV_ARGS(&allocator)), "Failed to create new command allocator"))
-				return nullptr;
+			OM_ASSERTION_HRESULT(_device->CreateCommandAllocator(_commandListType, IID_PPV_ARGS(&allocator)), "Failed to create new command allocator");
 			allocator->SetName(L"CommandAllocator" + _allocatorPool.size());
 			_allocatorPool.push_back(allocator);
 		}
