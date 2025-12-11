@@ -99,7 +99,15 @@
     <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandListManager.hpp" />
     <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandQueue.hpp" />
     <ClInclude Include="Source\OMEngine\Graphics\RHI\RHI.hpp" />
+    <ClInclude Include="Source\OMEngine\Math\BoundingSphere.hpp" />
+    <ClInclude Include="Source\OMEngine\Math\Common.hpp" />
+    <ClInclude Include="Source\OMEngine\Math\Functions.hpp" />
+    <ClInclude Include="Source\OMEngine\Math\Matrix3.hpp" />
+    <ClInclude Include="Source\OMEngine\Math\Matrix4.hpp" />
+    <ClInclude Include="Source\OMEngine\Math\Quaternion.hpp" />
     <ClInclude Include="Source\OMEngine\Math\Scalar.hpp" />
+    <ClInclude Include="Source\OMEngine\Math\Transform.hpp" />
+    <ClInclude Include="Source\OMEngine\Math\Vector.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\IResource.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\Texture.hpp" />
     <ClInclude Include="Source\OMEngine\Utils\GraphicsUtils.hpp" />
@@ -124,6 +132,7 @@
     <ClCompile Include="Source\OMEngine\Graphics\RHI\CommandListManager.cpp" />
     <ClCompile Include="Source\OMEngine\Graphics\RHI\CommandQueue.cpp" />
     <ClCompile Include="Source\OMEngine\Graphics\RHI\RHI.cpp" />
+    <ClCompile Include="Source\OMEngine\Math\BoundingSphere.cpp" />
     <ClCompile Include="Source\OMEngine\Resource\IResource.cpp" />
     <ClCompile Include="Source\OMEngine\Resource\Texture.cpp" />
     <ClCompile Include="Source\OMEngine\Graphics\CoreRender\ColorBuffer.cpp" />
@@ -134,6 +143,9 @@
     <ClCompile Include="Source\OMEngine\Platform\Window.cpp" />
     <ClCompile Include="Source\pch.cpp" />
     <ClCompile Include="Source\OMEngine\Core\ThreadPool.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\OMEngine\Math\Functions.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
