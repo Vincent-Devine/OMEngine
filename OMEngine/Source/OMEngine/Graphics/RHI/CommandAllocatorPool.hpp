@@ -6,6 +6,7 @@
 #include <vector>
 #include <queue>
 #include <mutex>
+#include "OMEngine/Utils/TypeDef.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -20,14 +21,16 @@ namespace OM::Graphics::RHI
 		void Create(ID3D12Device* device);
 		void Delete();
 
-		ID3D12CommandAllocator* RequestAllocator(unsigned __int64 completeFenceValue);
-		void DiscardAllocator(unsigned __int64 fenceValue, ID3D12CommandAllocator* allocator);
+		ID3D12CommandAllocator* RequestAllocator(uint64 completeFenceValue);
+		void DiscardAllocator(uint64 fenceValue, ID3D12CommandAllocator* allocator);
+
+		uint64 GetSize() const { return _allocatorPool.size(); }
 
 	private:
 		const D3D12_COMMAND_LIST_TYPE _commandListType;
 		ID3D12Device* _device; // optimization
 		std::vector<ComPtr<ID3D12CommandAllocator>> _allocatorPool;
-		std::queue<std::pair<unsigned __int64, ID3D12CommandAllocator*>> _readyAllocator;
+		std::queue<std::pair<uint64, ID3D12CommandAllocator*>> _readyAllocator;
 		std::mutex _allocatorMutex;
 	};
 }

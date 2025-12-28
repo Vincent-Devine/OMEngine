@@ -23,6 +23,7 @@ namespace OM::Graphics::RHI
 	{
 		OM_ASSERTION_TAG(device, "device null.", OM::Logger::TagRender);
 		OM_ASSERTION_TAG(!IsReady(), "command queue already create.", OM::Logger::TagRender);
+		OM_ASSERTION_TAG(_allocatorPool.GetSize() == 0, "allocator pool used.", OM::Logger::TagRender);
 
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 		queueDesc.Type = _type;
@@ -33,7 +34,7 @@ namespace OM::Graphics::RHI
 
 		OM_ASSERTION_HRESULT(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)), "Failed to create fence");
 		_fence->SetName(L"Fence");
-		_fence->Signal(static_cast<unsigned __int64>(_type) << 56);
+		_fence->Signal(static_cast<uint64>(_type) << 56);
 
 		_fenceEventHandle = CreateEvent(nullptr, false, false, nullptr);
 		if (_fenceEventHandle == nullptr)
@@ -44,8 +45,8 @@ namespace OM::Graphics::RHI
 
 	void CommandQueue::Delete()
 	{
-		if (!_commandQueue)
-			return;
+		if (!_commandQueue) return;
+
 		_allocatorPool.Delete();
 		
 		CloseHandle(_fenceEventHandle);
@@ -57,21 +58,21 @@ namespace OM::Graphics::RHI
 		_commandQueue = nullptr;
 	}
 
-	unsigned __int64 CommandQueue::IncrementFence()
+	uint64 CommandQueue::IncrementFence()
 	{
-		std::lock_guard<std::mutex> LockGuard(_fenceMutex);
+		std::lock_guard<std::mutex> lockGuard(_fenceMutex);
 		_commandQueue->Signal(_fence.Get(), _nextFenceValue);
 		return _nextFenceValue++;
 	}
 
-	bool CommandQueue::IsFenceComplete(unsigned __int64 fenceValue)
+	bool CommandQueue::IsFenceComplete(uint64 fenceValue)
 	{
 		if (fenceValue > _lastCompletedFenceValue)
 			_lastCompletedFenceValue = _lastCompletedFenceValue > _fence->GetCompletedValue() ? _lastCompletedFenceValue : _fence->GetCompletedValue();
 		return fenceValue <= _lastCompletedFenceValue;
 	}
 
-	void CommandQueue::WaitForFence(unsigned __int64 fenceValue)
+	void CommandQueue::WaitForFence(uint64 fenceValue)
 	{
 		if (IsFenceComplete(fenceValue)) return;
 
@@ -81,7 +82,7 @@ namespace OM::Graphics::RHI
 		_lastCompletedFenceValue = fenceValue;
 	}
 
-	unsigned __int64 CommandQueue::ExecuteCommandList(ID3D12CommandList* list)
+	uint64 CommandQueue::ExecuteCommandList(ID3D12CommandList* list)
 	{
 		std::lock_guard<std::mutex> lockGuard(_fenceMutex);
 
@@ -93,11 +94,11 @@ namespace OM::Graphics::RHI
 
 	ID3D12CommandAllocator* CommandQueue::RequestAllocator()
 	{
-		unsigned __int64 completeFence = _fence->GetCompletedValue();
+		uint64 completeFence = _fence->GetCompletedValue();
 		return _allocatorPool.RequestAllocator(completeFence);
 	}
 
-	void CommandQueue::DiscardAllocator(unsigned __int64 fenceValueForReset, ID3D12CommandAllocator* allocator)
+	void CommandQueue::DiscardAllocator(uint64 fenceValueForReset, ID3D12CommandAllocator* allocator)
 	{
 		_allocatorPool.DiscardAllocator(fenceValueForReset, allocator);
 	}

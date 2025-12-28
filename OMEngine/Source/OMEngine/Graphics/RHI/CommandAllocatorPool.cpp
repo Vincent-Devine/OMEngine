@@ -27,13 +27,13 @@ namespace OM::Graphics::RHI
 		_allocatorPool.clear();
 	}
 
-	ID3D12CommandAllocator* CommandAllocatorPool::RequestAllocator(unsigned __int64 completeFenceValue)
+	ID3D12CommandAllocator* CommandAllocatorPool::RequestAllocator(uint64 completeFenceValue)
 	{
 		std::lock_guard<std::mutex> lockGuard(_allocatorMutex);
 		ID3D12CommandAllocator* allocator = nullptr;
 		if (!_readyAllocator.empty())
 		{
-			std::pair<unsigned __int64, ID3D12CommandAllocator*>& allocatorPair = _readyAllocator.front();
+			std::pair<uint64, ID3D12CommandAllocator*>& allocatorPair = _readyAllocator.front();
 			if (allocatorPair.first <= completeFenceValue)
 			{
 				allocator = allocatorPair.second;
@@ -52,7 +52,7 @@ namespace OM::Graphics::RHI
 		return allocator;
 	}
 	
-	void CommandAllocatorPool::DiscardAllocator(unsigned __int64 fenceValue, ID3D12CommandAllocator* allocator)
+	void CommandAllocatorPool::DiscardAllocator(uint64 fenceValue, ID3D12CommandAllocator* allocator)
 	{
 		std::lock_guard<std::mutex> lockGuard(_allocatorMutex);
 		_readyAllocator.push(std::make_pair(fenceValue, allocator));

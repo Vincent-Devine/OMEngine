@@ -30,7 +30,6 @@ namespace OM
 	void Application::Render() const
 	{
 		_window->Render();
-		_rhi->Render();
 	}
 
 	void Application::Destroy()

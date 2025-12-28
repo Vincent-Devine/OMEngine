@@ -99,6 +99,7 @@
     <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandListManager.hpp" />
     <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandQueue.hpp" />
     <ClInclude Include="Source\OMEngine\Graphics\RHI\RHI.hpp" />
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\RHIOld.hpp" />
     <ClInclude Include="Source\OMEngine\Math\BoundingSphere.hpp" />
     <ClInclude Include="Source\OMEngine\Math\Common.hpp" />
     <ClInclude Include="Source\OMEngine\Math\Functions.hpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="Source\OMEngine\Resource\IResource.hpp" />
     <ClInclude Include="Source\OMEngine\Resource\Texture.hpp" />
     <ClInclude Include="Source\OMEngine\Utils\GraphicsUtils.hpp" />
+    <ClInclude Include="Source\OMEngine\Utils\TypeDef.hpp" />
     <ClInclude Include="Source\OMEngine\Utils\Utils.hpp" />
     <ClInclude Include="Source\OMEngine\Graphics\CoreRender\ColorBuffer.hpp" />
     <ClInclude Include="Source\OMEngine\Graphics\CoreRender\DescriptorAllocator.hpp" />
@@ -132,6 +134,7 @@
     <ClCompile Include="Source\OMEngine\Graphics\RHI\CommandListManager.cpp" />
     <ClCompile Include="Source\OMEngine\Graphics\RHI\CommandQueue.cpp" />
     <ClCompile Include="Source\OMEngine\Graphics\RHI\RHI.cpp" />
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\RHIOld.cpp" />
     <ClCompile Include="Source\OMEngine\Math\BoundingSphere.cpp" />
     <ClCompile Include="Source\OMEngine\Resource\IResource.cpp" />
     <ClCompile Include="Source\OMEngine\Resource\Texture.cpp" />

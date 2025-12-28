@@ -4,6 +4,7 @@
 #include <d3d12.h>
 #include <wrl/client.h>
 #include <mutex>
+#include "OMEngine/Utils/TypeDef.hpp"
 #include "OMEngine/Graphics/RHI/CommandAllocatorPool.hpp"
 
 using Microsoft::WRL::ComPtr;
@@ -23,9 +24,11 @@ namespace OM::Graphics::RHI
 
 		inline bool IsReady() { return _commandQueue != nullptr; }
 
-		unsigned __int64 IncrementFence();
-		bool IsFenceComplete(unsigned __int64 fenceValue);
-		void WaitForFence(unsigned __int64 fenceValue);
+		uint64 IncrementFence();
+		bool IsFenceComplete(uint64 fenceValue);
+		void WaitForFence(uint64 fenceValue);
+
+		ID3D12CommandQueue* GetD3D12CommandQueue() { return _commandQueue.Get(); }
 
 	private:
 		ComPtr<ID3D12CommandQueue> _commandQueue;
@@ -37,12 +40,12 @@ namespace OM::Graphics::RHI
 		std::mutex _eventMutex;
 
 		ComPtr<ID3D12Fence> _fence;
-		unsigned __int64 _nextFenceValue;
-		unsigned __int64 _lastCompletedFenceValue;
+		uint64 _nextFenceValue;
+		uint64 _lastCompletedFenceValue;
 		HANDLE _fenceEventHandle;
 
-		unsigned __int64 ExecuteCommandList(ID3D12CommandList* list);
+		uint64 ExecuteCommandList(ID3D12CommandList* list);
 		ID3D12CommandAllocator* RequestAllocator();
-		void DiscardAllocator(unsigned __int64 fenceValueForReset, ID3D12CommandAllocator* allocator);
+		void DiscardAllocator(uint64 fenceValueForReset, ID3D12CommandAllocator* allocator);
 	};
 }

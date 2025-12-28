@@ -75,7 +75,7 @@
     <ClInclude Include="Source\OMEngine\Utils\GraphicsUtils.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Source\OMEngine\Graphics\RHI\RHI.hpp">
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\RHIOld.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Source\OMEngine\Graphics\RHI\CommandAllocatorPool.hpp">
@@ -112,6 +112,12 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Source\OMEngine\Math\Functions.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Utils\TypeDef.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OMEngine\Graphics\RHI\RHI.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
@@ -161,7 +167,7 @@
     <ClCompile Include="Source\OMEngine\Graphics\CoreRender\PixelBuffer.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OMEngine\Graphics\RHI\RHI.cpp">
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\RHIOld.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Source\OMEngine\Graphics\RHI\CommandAllocatorPool.cpp">
@@ -174,6 +180,9 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Source\OMEngine\Math\BoundingSphere.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OMEngine\Graphics\RHI\RHI.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
