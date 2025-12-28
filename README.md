@@ -12,10 +12,13 @@ OM Engine (One More Engine) is a real-time 3D rendering engine using **Direct3D 
 - [Credit](#credit)
 
 ## Getting Started
-### Clone
+1. Clone project
 ```bash
 git clone git@github.com:Vincent-Devine/OMEngine.git
 ```
+2. Set as Startup project Sandbox
+3. Config the solution (```Debug``` or ```Release```)
+4. Run project ```F5```
 
 ## Technology
 - Engine Language: C++ *20*
@@ -27,13 +30,14 @@ git clone git@github.com:Vincent-Devine/OMEngine.git
 ### Libraries Used
 - Texture loader: [stb_image](https://github.com/nothings/stb) *v2.28*
 - Logger: [OMLogger](https://github.com/Vincent-Devine/OMLogger/tree/v2.2.0) *v2.2.0*
-- Math: [DirectXMath](https://github.com/microsoft/DirectXMath)
+- Math: [DirectXMath](https://github.com/microsoft/DirectXMath) - This project uses the math wrappers from Microsoft's [MiniEngine](https://github.com/microsoft/DirectX-Graphics-Samples/tree/master/MiniEngine/Core/Math) as a foundation.
 
 ## Credits
 Made by [Vincent DEVINE](https://github.com/Vincent-Devine)<br>
 
-- This project uses the math wrappers from Microsoft's [MiniEngine](https://github.com/microsoft/DirectX-Graphics-Samples/tree/master/MiniEngine/Core/Math) as a foundation.
-
-### Special Thanks
+### Sources
 - [DirectX-Graphics-Samples by Microsoft](https://github.com/microsoft/DirectX-Graphics-Samples/tree/master)
-- [Youtube - The Cherno](https://www.youtube.com/@TheCherno)
+- [MiniEngine by Microsoft](https://github.com/microsoft/DirectX-Graphics-Samples/tree/master/MiniEngine)
+- [Direct3D 12 Documentation by Microsoft](https://learn.microsoft.com/en-us/windows/win32/direct3d12/creating-a-basic-direct3d-12-component#initialize)
+- [The Cherno Youtube Channel](https://www.youtube.com/@TheCherno)
+- [Creating a DirectX12 3D Engine When You Know Nothing About 3D Programming by Loïc PETIT ](https://petitl.fr/articles/creating-a-directx12-3d-engine-when-you-know-nothing)
