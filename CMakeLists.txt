@@ -5,34 +5,5 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_library(OMEngine)
-target_sources(OMEngine
-	PRIVATE
-		OMEngine/Source/HelloWorld.cpp
-
-	PUBLIC
-		FILE_SET HEADERS
-		BASE_DIRS
-			OMEngine/Source
-		FILES
-			OMEngine/Source/HelloWorld.hpp
-
-	INTERFACE
-		OMEngine/Source/OMEngine.hpp
-)
-target_compile_definitions(OMEngine
-	PUBLIC
-		$<$<CONFIG:Debug>:OM_DEBUG>
-		$<$<CONFIG:RelWithDebInfo>:OM_DEVELOPMENT>
-		$<$<CONFIG:Release>:OM_RELEASE>
-)
-
-add_executable(OMEditor)
-target_sources(OMEditor 
-	PRIVATE
-		OMEditor/Source/main.cpp
-)
-target_link_libraries(OMEditor
-	PRIVATE
-		OMEngine
-)
+add_subdirectory(OMEngine)
+add_subdirectory(OMEditor)
