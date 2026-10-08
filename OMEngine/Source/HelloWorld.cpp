@@ -5,11 +5,11 @@ void HelloWorld()
 {
     std::cout << "Hello World!" << std::endl;
 
-#if Debug
+#if defined(OM_DEBUG)
     std::cout << "Hello World Debug!" << std::endl;
-#elif Development
+#elif defined(OM_DEVELOPMENT)
     std::cout << "Hello World Development!" << std::endl;
-#elif Release
+#elif defined(OM_RELEASE)
     std::cout << "Hello World Release!" << std::endl;
 #endif
 }

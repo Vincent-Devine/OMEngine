@@ -20,6 +20,12 @@ target_sources(OMEngine
 	INTERFACE
 		OMEngine/Source/OMEngine.hpp
 )
+target_compile_definitions(OMEngine
+	PUBLIC
+		$<$<CONFIG:Debug>:OM_DEBUG>
+		$<$<CONFIG:RelWithDebInfo>:OM_DEVELOPMENT>
+		$<$<CONFIG:Release>:OM_RELEASE>
+)
 
 add_executable(OMEditor)
 target_sources(OMEditor 
