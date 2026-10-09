@@ -1,11 +1,13 @@
 add_library(OMEngine)
 
 set(SOURCES
-	Source/HelloWorld.cpp
+	Source/Core/Log/Logger.cpp
 )
 
 set(HEADERS
-	Source/HelloWorld.hpp
+	Source/Core/Log/Logger.hpp
+	Source/Core/Log/Assertion.hpp
+	Source/Utils/Type.hpp
 )
 
 target_sources(OMEngine
