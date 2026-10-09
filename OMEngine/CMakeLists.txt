@@ -1,13 +1,16 @@
 add_library(OMEngine)
 
 set(SOURCES
+	Source/Core/Engine.cpp
 	Source/Core/Log/Logger.cpp
 )
 
 set(HEADERS
+	Source/Core/Engine.hpp
 	Source/Core/Log/Logger.hpp
 	Source/Core/Log/Assertion.hpp
 	Source/Utils/Type.hpp
+	Source/Utils/OMResult.hpp
 )
 
 target_sources(OMEngine
