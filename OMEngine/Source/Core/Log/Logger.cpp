@@ -68,6 +68,18 @@ namespace OM::Core::Log
 
 	void Logger::Log(const EVerbosity verbosity, const ELogTag tag, const std::string_view& file, const std::string_view& function, const int line, const std::string_view& log)
 	{
+		#if defined(OM_RELEASE)
+
+		if (!(verbosity & EVerbosity::VerbosityCritical))
+			return;
+
+		#elif defined(OM_DEVELOPMENT)
+
+		if (!(verbosity & EVerbosity::VerbosityCritical) && !(verbosity & EVerbosity::VerbosityError) && !(verbosity & EVerbosity::VerbosityWarning))
+			return;
+
+		#endif
+
 		if (!(_verbosity & verbosity))
 			return;
 

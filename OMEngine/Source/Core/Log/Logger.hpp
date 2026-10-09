@@ -47,7 +47,7 @@ namespace OM::Core::Log
 	class Logger
 	{
 	public:
-		static Logger* GetInstance()
+		static Logger* Get()
 		{
 			if (!s_instance)
 				s_instance = new Logger();
@@ -86,43 +86,18 @@ namespace OM::Core::Log
 	};
 }
 
-#if defined(OM_DEBUG)
+// #if defined(OM_DEBUG)
 
-#define OM_LOG_DEBUG(log, tag)		OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityDebug,	tag, __FILE__, __func__, __LINE__, log);
-#define OM_LOG_INFO(log, tag)		OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityInfo,		tag, __FILE__, __func__, __LINE__, log);
-#define OM_LOG_WARNING(log, tag)	OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityWarning,	tag, __FILE__, __func__, __LINE__, log);
-#define OM_LOG_ERROR(log, tag)		OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityError,	tag, __FILE__, __func__, __LINE__, log);
+#define OM_LOG_DEBUG(log, tag)		OM::Core::Log::Logger::Get()->Log(OM::Core::Log::EVerbosity::VerbosityDebug,	tag, __FILE__, __func__, __LINE__, log);
+#define OM_LOG_INFO(log, tag)		OM::Core::Log::Logger::Get()->Log(OM::Core::Log::EVerbosity::VerbosityInfo,		tag, __FILE__, __func__, __LINE__, log);
+#define OM_LOG_WARNING(log, tag)	OM::Core::Log::Logger::Get()->Log(OM::Core::Log::EVerbosity::VerbosityWarning,	tag, __FILE__, __func__, __LINE__, log);
+#define OM_LOG_ERROR(log, tag)		OM::Core::Log::Logger::Get()->Log(OM::Core::Log::EVerbosity::VerbosityError,	tag, __FILE__, __func__, __LINE__, log);
+#define OM_LOG_CRITICAL(log, tag)								OM::Core::Log::Logger::Get()->Log(OM::Core::Log::EVerbosity::VerbosityCritical, tag, __FILE__, __func__, __LINE__, log);
 
-#define OM_LOG_DEBUG_CUSTOM(log, tag, file, function, line)		OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityDebug,	tag, file, function, line, log);
-#define OM_LOG_INFO_CUSTOM(log, tag, file, function, line)		OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityInfo,		tag, file, function, line, log);
-#define OM_LOG_WARNING_CUSTOM(log, tag, file, function, line)	OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityWarning,	tag, file, function, line, log);
-#define OM_LOG_ERROR_CUSTOM(log, tag, file, function, line)		OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityError,	tag, file, function, line, log);
+#define OM_LOG_DEBUG_CUSTOM(log, tag, file, function, line)		OM::Core::Log::Logger::Get()->Log(OM::Core::Log::EVerbosity::VerbosityDebug,	tag, file, function, line, log);
+#define OM_LOG_INFO_CUSTOM(log, tag, file, function, line)		OM::Core::Log::Logger::Get()->Log(OM::Core::Log::EVerbosity::VerbosityInfo,		tag, file, function, line, log);
+#define OM_LOG_WARNING_CUSTOM(log, tag, file, function, line)	OM::Core::Log::Logger::Get()->Log(OM::Core::Log::EVerbosity::VerbosityWarning,	tag, file, function, line, log);
+#define OM_LOG_ERROR_CUSTOM(log, tag, file, function, line)		OM::Core::Log::Logger::Get()->Log(OM::Core::Log::EVerbosity::VerbosityError,	tag, file, function, line, log);
+#define OM_LOG_CRITICAL_CUSTOM(log, tag, file, function, line)	OM::Core::Log::Logger::Get()->Log(OM::Core::Log::EVerbosity::VerbosityCritical, tag, file, function, line, log);
 
-#elif defined (OM_DEVELOPMENT)
-
-#define OM_LOG_DEBUG(log, tag)		do {} while(0);
-#define OM_LOG_INFO(log, tag)		do {} while(0);
-#define OM_LOG_WARNING(log, tag)	OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityWarning,	tag, __FILE__, __func__, __LINE__, log);
-#define OM_LOG_ERROR(log, tag)		OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityError,	tag, __FILE__, __func__, __LINE__, log);
-
-#define OM_LOG_DEBUG_CUSTOM(log, tag, file, function, line)		do {} while(0);
-#define OM_LOG_INFO_CUSTOM(log, tag, file, function, line)		do {} while(0);
-#define OM_LOG_WARNING_CUSTOM(log, tag, file, function, line)	OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityWarning,	tag, file, function, line, log);
-#define OM_LOG_ERROR_CUSTOM(log, tag, file, function, line)		OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityError,	tag, file, function, line, log);
-
-#else
-
-#define OM_LOG_DEBUG(log, tag)		do {} while(0);
-#define OM_LOG_INFO(log, tag)		do {} while(0);
-#define OM_LOG_WARNING(log, tag)	do {} while(0);
-#define OM_LOG_ERROR(log, tag)		do {} while(0);
-
-#define OM_LOG_DEBUG_CUSTOM(log, tag, file, function, line)		do {} while(0);
-#define OM_LOG_INFO_CUSTOM(log, tag, file, function, line)		do {} while(0);
-#define OM_LOG_WARNING_CUSTOM(log, tag, file, function, line)	do {} while(0);
-#define OM_LOG_ERROR_CUSTOM(log, tag, file, function, line)		do {} while(0);
-
-#endif
-
-#define OM_LOG_CRITICAL(log, tag)								OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityCritical, tag, __FILE__, __func__, __LINE__, log);
-#define OM_LOG_CRITICAL_CUSTOM(log, tag, file, function, line)	OM::Core::Log::Logger::GetInstance()->Log(OM::Core::Log::EVerbosity::VerbosityCritical, tag, file, function, line, log);
+#define OM_LOG(log, verbosity, tag, file, function, line)	OM::Core::Log::Logger::Get()->Log(verbosity, tag, file, function, line, log);
