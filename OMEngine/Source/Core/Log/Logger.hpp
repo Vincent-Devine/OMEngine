@@ -56,7 +56,7 @@ namespace OM::Core::Log
 
 		void Destroy();
 
-		void OpenLogFile(const std::filesystem::path& path, bool overwrite = true);
+		void OpenLogFile(const std::filesystem::path& path, const bool overwrite = true);
 		void CloseLogFile();
 		
 		void Log(const EVerbosity verbosity, const ELogTag tag, const std::string_view& file, const std::string_view& function, const int line, const std::string_view& log);

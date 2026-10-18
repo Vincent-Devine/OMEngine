@@ -38,7 +38,7 @@ namespace OM::Core::Log
 		s_instance = nullptr;
 	}
 
-	void Logger::OpenLogFile(const std::filesystem::path& path, bool overwrite)
+	void Logger::OpenLogFile(const std::filesystem::path& path, const bool overwrite)
 	{
 		std::scoped_lock lock(_mutex);
 		if (_logFile.is_open())
