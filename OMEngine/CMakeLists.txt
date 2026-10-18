@@ -9,7 +9,7 @@ set(HEADERS
 	Source/Core/Engine.hpp
 	Source/Core/Log/Logger.hpp
 	Source/Core/Log/Assertion.hpp
-	Source/Utils/Type.hpp
+	Source/Core/Types/BaseType.hpp
 	Source/Utils/OMResult.hpp
 )
 

@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <mutex>
 
-#include <Utils/Type.hpp>
+#include <Core/Types/BaseType.hpp>
 
 namespace OM::Core::Log
 {

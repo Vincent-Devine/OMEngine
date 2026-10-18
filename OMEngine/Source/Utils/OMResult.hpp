@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <Utils/Type.hpp>
+#include <Core/Types/BaseType.hpp>
 #include <Core/Log/Assertion.hpp>
 #include <Core/Log/Logger.hpp>
 
