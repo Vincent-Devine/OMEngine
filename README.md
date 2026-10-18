@@ -26,3 +26,7 @@ OM Engine (One More Engine) is a real-time 3D rendering engine<br>
 
 ## Credits
 [Vincent DEVINE](https://github.com/Vincent-Devine) - vincentdevine.pro@gmail.com
+
+### Sources
+#### Books
+- [Game Engine Architecture *by **Jason Gregory***](https://www.gameenginebook.com/)
